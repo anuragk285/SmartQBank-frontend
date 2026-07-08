@@ -25,8 +25,8 @@
               </div>
             </SidebarHeader>
             <SidebarContent>
-              <div>
-                <div class="my-5 flex flex-col gap-2">
+              <SidebarMenu>
+                <SidebarMenuItem class="my-5 flex flex-col gap-2">
                   <Label for="department">DEPARTMENT</Label>
                   <!-- <h2 class="text-gray-600 text-xs tracking-widest">DEPARTMENT</h2> -->
                   <Select
@@ -38,8 +38,8 @@
                     placeholder="Select your Department"
                     class="border border-gray-300 text-gray-600"
                   />
-                </div>
-                <div class="my-5 flex flex-col gap-2">
+                </SidebarMenuItem>
+                <SidebarMenuItem class="my-5 flex flex-col gap-2">
                   <Label for="semester">SEMESTER</Label>
                   <Select
                     id="semester"
@@ -50,8 +50,13 @@
                     placeholder="Select your Semester"
                     class="border border-gray-300 text-grey-600"
                   />
-                </div>
-              </div>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <Button class="cursor-pointer" @click="applyFilterOnSubjects"
+                    >APPLY FILTER</Button
+                  >
+                </SidebarMenuItem>
+              </SidebarMenu>
             </SidebarContent>
             <SidebarFooter class="flex flex-col gap-3">
               <div
@@ -119,6 +124,7 @@ import {
   SidebarBackdrop,
   SidebarFooter,
   SidebarSpacer,
+  SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
 } from 'primevue'
@@ -130,6 +136,7 @@ import Cog from '@primeicons/vue/cog'
 import SubjectCard from './SubjectCard.vue'
 import { useRouter } from 'vue-router'
 import { useSubjectStore } from '@/stores/subject.js'
+import Button from 'primevue/button'
 
 const router = useRouter()
 const subjectStore = useSubjectStore()
@@ -164,9 +171,11 @@ async function loadAllSubjects() {
 }
 function applyFilterOnSubjects() {
   loading.value = true
-  filteredSubjects.value = ref([])
-  allSubjects.array.forEach((subject) => {
-    if (subject.department == selectedDepartment) filteredSubjects.current.push(subject)
+  if (!allSubjects.value) return
+  filteredSubjects.value = allSubjects.value.filter((subject) => {
+    return (
+      subject.department === selectedDepartment.value && subject.semester === selectedSemester.value
+    )
   })
   loading.value = false
 }
@@ -197,8 +206,8 @@ onBeforeUnmount(() => {
   }
 })
 const departments = ref([
-  { label: 'Computer Science and Engineering', value: 'cse' },
-  { label: 'Information Technology', value: 'it' },
+  { label: 'Computer Science and Engineering', value: 'CSE' },
+  { label: 'Information Technology', value: 'IT' },
 ])
 const semesters = ref([
   { label: 1, value: 1 },

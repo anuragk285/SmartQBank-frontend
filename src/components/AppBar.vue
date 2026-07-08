@@ -13,13 +13,7 @@
 import { Menubar, Avatar } from 'primevue'
 import { computed } from 'vue'
 import avatarImage from '@/assets/images/onePunchMan.jpeg'
-const props = defineProps({
-  currentPage: {
-    type: String,
-    required: true,
-  },
-})
-const emit = defineEmits(['change-page'])
+
 const items = computed(() => [
   { label: 'Subjects', value: 'subjects' },
   { label: 'Questions', value: 'questions' },
