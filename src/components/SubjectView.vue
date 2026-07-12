@@ -97,7 +97,6 @@
               <SubjectCard
                 :subject_code="subject.subject_code"
                 :subject_name="subject.name"
-                :no_of_questions="subject.no_of_questions"
                 :key="subject.id"
                 class="cursor-pointer"
                 @click="onSubjectSelect(subject)"

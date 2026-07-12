@@ -1,5 +1,5 @@
 <template>
-  <Menubar class="p-4" :model="items">
+  <Menubar class="p-4">
     <template #start>
       <span class="text-primary text-2xl font-bold mx-2">SmartQBank</span>
     </template>
@@ -11,12 +11,7 @@
 
 <script setup>
 import { Menubar, Avatar } from 'primevue'
-import { computed } from 'vue'
 import avatarImage from '@/assets/images/onePunchMan.jpeg'
 
-const items = computed(() => [
-  { label: 'Subjects', value: 'subjects' },
-  { label: 'Questions', value: 'questions' },
-])
 </script>
 <style scoped></style>

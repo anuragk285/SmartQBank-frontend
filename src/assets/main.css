@@ -1,8 +1,8 @@
 @import "tailwindcss";
 @import "tailwindcss-primeui";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  
   --font-inter: "Inter", sans-serif;
   --default-font-family: var(--font-inter);
   --color-primary: #16305c;

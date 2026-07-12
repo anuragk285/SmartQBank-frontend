@@ -46,7 +46,7 @@
                           class="p-2 text-center text-xs font-semibold text-blue-600 bg-gray-50 hover:bg-blue-50 cursor-pointer border-t border-gray-200"
                           @click="selectAllYears()"
                         >
-                          <span class="text-primary-dark">+ Select All Years</span>
+                          <span class="text-primary-dark"> Select All Years</span>
                         </div>
                       </template>
                       <template #option="slotProps">
@@ -62,7 +62,7 @@
                           class="p-2 text-center text-xs font-semibold text-blue-600 bg-gray-50 hover:bg-blue-50 cursor-pointer border-t border-gray-200"
                           @click="resetSelectedYears()"
                         >
-                          <span class="text-primary">+ Reset Year Filters</span>
+                          <span class="text-primary"> Reset Year Filters</span>
                         </div>
                       </template>
                     </Select>
@@ -107,9 +107,9 @@
                         >
                           <span
                             v-if="selectedUnitsIndices.includes(i)"
-                            class="size-4.5 inline-flex items-center justify-center bg-surface-900 dark:bg-surface-50 text-surface-0 dark:text-surface-900 rounded-full"
+                            class="size-4.5 inline-flex items-center justify-center rounded-full text-primary"
                           >
-                            <Check class="size-2.5!" />
+                            <CircleFill></CircleFill>
                           </span>
                           <span v-else><Circle></Circle></span>
                           <span class="text-xs">{{ unit.label }}</span>
@@ -128,6 +128,9 @@
                           :inputId="d.key"
                           name="label"
                           :value="d"
+                          :pt="{
+                            icon: {class: 'bg-primary text-white border-primary'}
+                          }"
                         />
                         <Label :for="d.key" class="text-sm">{{ d.label }}</Label>
                       </div>
@@ -154,9 +157,7 @@
                   </div>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <Button class="cursor-pointer bg-sky-800" @click="applyFiltersOnQuestions()"
-                    >APPLY FILTER</Button
-                  >
+                  <Button class="cursor-pointer bg-sky-800" @click="applyFiltersOnQuestions()">APPLY FILTER</Button>
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarContent>
@@ -188,12 +189,15 @@
           </SidebarTrigger>
         </header>
         <main class="px-4">
-          <div class="flex justify-between">
+          <div class="flex justify-between px-4">
             <div>
               <h1 class="font-inter font-bold text-2xl text-primary-dark tracking-wide">
                 Questions
               </h1>
-              <h3 class="text-tertiary">questions found <span class="text-primary">↓</span></h3>
+              <h3 class="text-tertiary">{{ filteredQuestions.length }} questions found.</h3>
+            </div>
+            <div>
+              <h2 class="font-inter font-bold text-xl text-primary-dark tracking-wide pe-3">{{ selectedSubject?.name }}</h2>
             </div>
           </div>
           <div>
@@ -208,6 +212,7 @@
                   :marks="q.marks"
                   :unit="q.unit"
                   :year="q.year"
+                  :image_urls="q.image_urls"
                 />
               </div>
 
@@ -217,6 +222,7 @@
                 :totalRecords="filteredQuestions.length"
                 :rowsPerPageOptions="[5, 10, 15]"
                 template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+                @page="scrollToTop"
               />
             </div>
             <div
@@ -268,6 +274,8 @@ import { useSubjectStore } from '@/stores/subject'
 import Chip from 'primevue/chip'
 import Circle from '@primeicons/vue/circle'
 import Check from '@primeicons/vue/check'
+import CircleFill from '@primeicons/vue/circle-fill';
+import { storeToRefs } from 'pinia'
 const route = useRoute()
 const subjectStore = useSubjectStore()
 const first = ref(0)
@@ -282,7 +290,7 @@ const openOnHover = ref(false)
 const backdrop = ref(false)
 let mql = null
 let onMqlChange = null
-
+const { selectedSubject } = storeToRefs(subjectStore)
 const allQuestions = ref([])
 const filteredQuestions = ref([])
 const loading = ref(true)
@@ -316,7 +324,7 @@ function applyFiltersOnQuestions() {
   loading.value = false
   first.value = 0
   if (!allQuestions.value) return
-  const targetYears = selectedYears.value.map((y) => y.value)
+  const targetYears = selectedYears.value.map((y) => y)
   const targetDiff = selectedDifficulties.value.map((d) => d.value)
   filteredQuestions.value = allQuestions.value.filter((question) => {
     const matchesYear = targetYears.length === 0 || targetYears.includes(Number(question?.year))
@@ -331,11 +339,15 @@ function applyFiltersOnQuestions() {
     return matchesDiff && matchesMarks && matchesUnits && matchesYear
   })
   loading.value = false
+  scrollToTop()
+  if (isMobile.value) {
+    open.value = false
+  }
 }
 const selectedUnitsIndices = ref([])
 const selectedMarksIndices = ref([])
 function onSelectMarksChips(index) {
-  if (!selectedMarksIndices || !selectedMarksIndices.value) {
+  if (!selectedMarksIndices.value) {
     console.error('The ref array passed to onSelect is undefined!', selectedMarksIndices)
     return
   }
@@ -346,7 +358,7 @@ function onSelectMarksChips(index) {
   }
 }
 function onSelectUnitChips(index) {
-  if (!selectedUnitsIndices || !selectedUnitsIndices.value) {
+  if (!selectedUnitsIndices.value) {
     console.error('The ref array passed to onSelect is undefined!', selectedUnitsIndices)
     return
   }
@@ -388,7 +400,6 @@ watch(
     loadSubjectAndQuestions(newId)
   },
 )
-const selectedUnits = ref([])
 const units = ref([
   { label: 'Unit 1', value: 1 },
   { label: 'Unit 2', value: 2 },
@@ -410,7 +421,6 @@ const years = ref([
   { label: 2024, value: 2024 },
   { label: 2025, value: 2025 },
 ])
-const selectedMarks = ref([])
 const marks = ref([
   { label: '2', value: 2 },
   { label: '3', value: 3 },
@@ -427,6 +437,12 @@ const paginatedQuestions = computed(() => {
   const end = first.value + rows.value
   return filteredQuestions.value.slice(start, end)
 })
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth' // Change to 'auto' if you want it to snap instantly without animation
+  });
+}
 </script>
 
 <style scoped></style>

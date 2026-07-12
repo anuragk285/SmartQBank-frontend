@@ -5,7 +5,6 @@
                 <div class="flex flex-col gap-3">
                     <div class="flex justify-start gap-3">
                         <Badge :value="subject_code" severity="secondary" class="p-4 text-sm"></Badge>
-                        <Badge :value="(no_of_questions ?? 0)+' questions'" class="p-4 text-sm text-green-800 tracking-wide font-inter" severity="secondary"></Badge>
                     </div>
                     <h3 class="font-inter font-bold tracking-wide text-2xl ms-2"> {{ subject_name }}</h3>
                 </div>
@@ -23,5 +22,5 @@
 <script setup>
     import Badge from 'primevue/badge';
     import { Card, Button } from 'primevue';
-    defineProps(['subject_code', 'subject_name', 'no_of_questions'])
+    defineProps(['subject_code', 'subject_name'])
 </script>

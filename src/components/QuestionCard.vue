@@ -3,6 +3,24 @@
     <Card class="ps-3 py-3 pe-5 border border-gray-300">
       <template #content>
         <h1 class="text-xl font-bold font-inter">{{ question_text }}</h1>
+        <div v-if="image_urls?.length > 0" class="my-2">
+          <Carousel 
+            :value="image_urls" 
+            :numVisible="1" 
+            :numScroll="1" 
+            class="max-w-xl mx-auto"
+          >
+            <template #item="slotProps">
+              <div class="h-50 w-full flex items-center justify-center p-2">
+                <img 
+                  :src="slotProps.data" 
+                  alt="Question graphic" 
+                  class="max-w-full max-h-full object-contain rounded-lg" 
+                />
+              </div>
+            </template>
+          </Carousel>
+        </div>
       </template>
       <template #footer>
         <div class="flex justify-start items-center gap-3 mt-4">
@@ -29,7 +47,8 @@
 <script setup>
 import Card from 'primevue/card'
 import Badge from 'primevue/badge'
-defineProps(['question_text', 'unit', 'difficulty', 'year', 'marks'])
+import  Carousel from 'primevue/carousel'
+defineProps(['question_text', 'unit', 'difficulty', 'year', 'marks', 'image_urls'])
 const difficultyClasses = {
   Easy: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   Medium: 'bg-amber-50 text-amber-600 border-amber-200',
