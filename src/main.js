@@ -67,6 +67,10 @@ const AcademicNavyPreset = definePreset(Aura, {
     },
     inputtext: {
       borderRadius: '0.25rem',
+    },
+    badge: {
+      color: '#16305c',
+      borderRadius: '0.25rem',
     }
   }
 })
