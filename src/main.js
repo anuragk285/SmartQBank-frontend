@@ -2,10 +2,11 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 import PrimeVue from 'primevue/config'
-import Aura from '@primeuix/themes/aura'
-import { definePreset } from '@primeuix/themes'
+import Aura from '@primevue/themes/aura'
+import { definePreset } from '@primevue/themes'
 import router from './router'
 import { createPinia } from 'pinia'
+import 'primeicons/primeicons.css'
 
 const AcademicNavyPreset = definePreset(Aura, {
   semantic: {
@@ -69,7 +70,6 @@ const AcademicNavyPreset = definePreset(Aura, {
       borderRadius: '0.25rem',
     },
     badge: {
-      color: '#16305c',
       borderRadius: '0.25rem',
     }
   }

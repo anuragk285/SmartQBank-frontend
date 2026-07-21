@@ -1,7 +1,7 @@
 <template>
-  <Menubar class="p-4">
+  <Menubar class="p-4 sticky top-0 z-50 bg-white border-b border-gray-200">
     <template #start>
-      <div class="flex items-center gap-6 mx-2 relative z-1200 bg-white">
+      <div class="flex items-center flex-wrap gap-6 mx-2 relative bg-white">
         <span class="text-primary text-2xl font-bold">SmartQBank</span>
 
         <Breadcrumb
@@ -18,7 +18,7 @@
               </a>
             </router-link>
             
-            <span v-else v-bind="props.action" class="flex items-center gap-2">
+            <span v-else v-bind="props.action" class="flex items-center gap-2 hover:text-tertiary">
               <span v-if="item.icon" :class="item.icon"></span>
               <span v-if="item.label">{{ item.label }}</span>
             </span>
@@ -32,7 +32,6 @@
     </template>
   </Menubar>
 </template>
-
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
@@ -41,7 +40,6 @@ import { useSubjectStore } from '@/stores/subject'
 import { Menubar, Avatar } from 'primevue'
 import Breadcrumb from 'primevue/breadcrumb'
 import avatarImage from '@/assets/images/onePunchMan.jpeg'
-
 const route = useRoute() 
 const subjectStore = useSubjectStore()
 const { selectedSubject } = storeToRefs(subjectStore)
