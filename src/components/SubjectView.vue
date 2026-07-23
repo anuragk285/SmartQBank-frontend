@@ -4,30 +4,31 @@
       <div 
         v-if="isMobile && open" 
         @click="open = false" 
-        class="fixed inset-0 bg-black/40 z-40 lg:hidden"
+        class="fixed inset-0 bg-black/40 z-50 lg:hidden"
       ></div>
 
       <!-- Sidebar / Aside Container -->
       <aside
         :class="[
-          'bg-white border-gray-200 transition-all duration-300 z-40 flex flex-col justify-between',
-        
-          'fixed top-16.25 bottom-0 left-0 w-80 shadow-2xl h-[calc(100vh-65px)]',
+          'bg-white border-gray-200 transition-all duration-300 z-50 flex flex-col justify-between overflow-hidden',
+
+          /* Mobile drawer: */
+          'fixed top-0 bottom-0 left-0 w-80 shadow-2xl h-screen',
           open ? 'translate-x-0' : '-translate-x-full',
-          'lg:sticky lg:top-16.25 lg:bottom-auto lg:shadow-none lg:translate-x-0 lg:h-[calc(100vh-65px)]',
-          open ? 'lg:w-80 lg:border-r' : 'lg:w-0 lg:border-r-0 lg:overflow-hidden'
+
+          /* Desktop sticky sidebar*/
+          'lg:sticky lg:top-0 lg:bottom-auto lg:shadow-none lg:translate-x-0 lg:h-screen',
+          open ? 'lg:w-80 lg:border-r' : 'lg:w-0 lg:border-r-0'
         ]"
       >
-        <div class="p-4 flex flex-col gap-4 w-80">
+        <div class="p-4 flex flex-col gap-4 w-80 translate-x overflow-y-auto overscroll-contain">
           <!-- Sidebar Header -->
           <div class="mb-4">
-            <div class="flex flex-col gap-2 mb-4">
               <h2 class="tracking-widest text-sm font-inter text-gray-500">FILTERS</h2>
-              <div>
-                <h3 class="tracking-wide font-inter text-xl font-bold text-gray-800">Refine your search</h3>
-                <h3 class="tracking-wide text-xs font-inter text-gray-500">Select a subject</h3>
-              </div>
-            </div>
+              <!-- <div>
+                    <h3 class="tracking-wide font-inter text-xl font-bold text-gray-800">Refine your search</h3>
+                    <h3 class="tracking-wide text-xs font-inter text-gray-500">Select a subject</h3>  
+                  </div> -->
           </div>
 
           <!-- Sidebar Content / Menu -->
@@ -43,6 +44,7 @@
                   v-model="selectedDepartment"
                   option-label="label"
                   option-value="value"
+                  append-to="self"
                   placeholder="Select your Department"
                   class="w-full border border-gray-300 text-gray-600"
                 />
@@ -58,6 +60,7 @@
                   v-model="selectedSemester"
                   option-label="label"
                   option-value="value"
+                  append-to="self"
                   placeholder="Select your Semester"
                   class="w-full border border-gray-300 text-gray-600"
                 />
@@ -99,11 +102,11 @@
       </aside>
 
       <!-- Main Content Area -->
-      <main class="flex-1 min-w-0 w-full" >
-        <header class="flex h-12 items-center gap-2 dark:border-surface-700 px-4 bg-white sticky top-0 z-30">
-          <Button severity="secondary" text size="small" @click="open = !open" class="flex items-center gap-2">
-            <h4 class="text-secondary">FILTERS</h4>
-            <span class="pi pi-bars text-secondary"></span>
+      <main class="flex-1 min-w-0 w-full transition-all duration-300 ease-in-out" >
+        <header class="flex h-12 items-center gap-2 dark:border-surface-700 px-4 bg-white z-30">
+          <Button severity="secondary" text size="small" @click="open = !open" class="flex items-center gap-2 border-gray-300 bg-gray-50 ms-1 mt-4">
+            <h4 class="text-blue-500 text-lg sm:text-sm">FILTERS</h4>
+            <span class="pi pi-filter text-blue-500 text-lg sm:text-sm"></span>
           </Button>
         </header>
 

@@ -4,26 +4,29 @@
       <div
         v-if="isMobile && open"
         @click="open = false"
-        class="fixed inset-0 bg-black/40 z-40 lg:hidden"
+        class="fixed inset-0 bg-black/40 z-50 lg:hidden"
       ></div>
       <aside
         :class="[
-          'bg-white border-gray-200 transition-all duration-300 z-40 flex flex-col justify-between',
-        
-          'fixed top-16.25 bottom-0 left-0 w-80 shadow-2xl h-[calc(100vh-65px)]',
+          'bg-white border-gray-200 transition-all duration-300 z-50 flex flex-col justify-between overflow-hidden',
+
+          /* Mobile drawer: */
+          'fixed top-0 bottom-0 left-0 w-80 shadow-2xl h-screen',
           open ? 'translate-x-0' : '-translate-x-full',
-          'lg:sticky lg:top-16.25 lg:bottom-auto lg:shadow-none lg:translate-x-0 lg:h-[calc(100vh-65px)]',
-          open ? 'lg:w-80 lg:border-r' : 'lg:w-0 lg:border-r-0 lg:overflow-hidden'
+
+          /* Desktop sticky sidebar*/
+          'lg:sticky lg:top-0 lg:bottom-auto lg:shadow-none lg:translate-x-0 lg:h-screen',
+          open ? 'lg:w-80 lg:border-r' : 'lg:w-0 lg:border-r-0'
         ]"
       >
-        <div class="p-4 flex flex-col gap-4 w-80">
+        <div class="p-4 flex flex-col gap-4 w-80 translate-x h-full overflow-y-auto overscroll-contain">
           <!-- Sidebar Header -->
           <div class="flex flex-col gap-2 mb-2">
             <h2 class="tracking-widest text-sm font-inter text-gray-500">FILTERS</h2>
-            <div>
+            <!-- <div>
               <h3 class="tracking-wide font-inter text-xl font-bold text-gray-800">Refine your search</h3>
               <h3 class="tracking-wide text-xs font-inter text-gray-500">Find specific question easily</h3>
-            </div>
+            </div> -->
           </div>
 
           <!-- Sidebar Content / Menu -->
@@ -35,7 +38,7 @@
                 v-model="selectedTopic"
                 :options="treeTopics"
                 placeholder="Select Topic"
-                class="w-full"
+                class="w-full sticky"
                 appendTo="self"
               />
             </div>
@@ -116,37 +119,48 @@
 
       <!-- Main Content Area -->
       <main class="flex-1 min-w-0 w-full">
-        <header class="flex h-12 items-center gap-2 dark:border-surface-700 px-4 bg-white sticky top-0 z-30">
-          <Button severity="secondary" text size="small" @click="open = !open" class="flex items-center gap-2">
-            <h4 class="text-tertiary">FILTERS</h4>
-            <span class="pi pi-bars text-tertiary"></span>
+        <header class="dark:border-surface-700 bg-white z-30 mx-auto transition-all duration-300 ease-in-out ps-4 sm:p-0"
+                :class="isMobile ? 'w-full' : open ? 'w-[80ch]' : 'w-[95ch]'">
+          <Button severity="secondary" text size="small" @click="open = !open" class="flex items-center gap-2 border-gray-300 bg-gray-50 mt-4 ms-1 hover:bg-gray-100">
+            <h4 class=" text-blue-500 text-lg sm:text-sm">FILTERS</h4>
+            <span class="pi pi-filter text-blue-500 text-lg sm:text-sm"></span>
           </Button>
         </header>
 
-        <div class="px-4 py-4">
-          <div class="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-start px-4">
-            <div>
+        <div class="p-4">
+          <div 
+            class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start p-2 mx-auto transition-all duration-300 ease-in-out"
+            :class="isMobile ? 'w-full' : open ? 'w-[80ch]' : 'w-[95ch]'"
+          >
+            <!-- Left Side: Titles -->
+            <div class="flex flex-col gap-2">
               <h1 class="font-inter font-bold text-2xl text-primary-dark tracking-wide">
-                Questions
+                {{ selectedSubject?.name }}
               </h1>
-              <h3 class="text-tertiary">{{ total }} questions found.</h3>
+              <div class="flex gap-2 flex-wrap">
+                <h3 class="font-medium tracking-tight">{{ selectedSubject?.subject_code }}</h3>
+                <span>⋅</span>
+                <h3 class="text-tertiary">{{ total }} questions.</h3>
+              </div>
             </div>
-            <div class="flex flex-col sm:items-end gap-2">
-              <h2 class="font-inter font-bold text-xl text-primary-dark tracking-wide me-3">{{ selectedSubject?.name }}</h2>
-              <div class="flex gap-2 me-3 sm:flex-row sm:items-center">
+
+            <!-- Right Side: Filters -->
+            <div class=" sm:self-end">
+              <div class="flex gap-2 sm:flex-row sm:items-end">
                 <Select v-model="sortBy" :options="sortableItems" optionLabel="label" placeholder="Sort By"></Select>
-                <Select v-model="sortOrder" :options="sortableOrders" optionLabel="label" placeholder="Order By"></Select>
+                <Select v-model="sortOrder" :options="sortableOrders" optionLabel="label" placeholder="Order By"></Select>  
               </div>
             </div>
           </div>
 
           <div class="mt-4">
             <div v-if="questions?.length > 0">
-              <div class="grid">
+              <div class="flex flex-col">
                 <QuestionCard
-                  class="p-4 w-auto"
-                  v-for="(q, index) in questions"
-                  :key="q.id || index"
+                  class="p-2 mx-auto"
+                  v-for="q in questions"
+                  :key="q.id"
+                  :question_id="q.id"
                   :question_text="q.text"
                   :difficulty="q.difficulty"
                   :marks="q.marks"
@@ -154,6 +168,8 @@
                   :year="q.year"
                   :image_urls="q.image_urls"
                   :topic="q.topic"
+                  :isMobile="isMobile"
+                  :open="open"
                 />
               </div>
 
@@ -238,8 +254,9 @@ const sortableOrders = ref([
 
 async function loadTopics() {
   const numericSubjectId = subjectId.value
+  const baseUrl = "http://192.168.0.168:"
   try {
-    const response = await fetch(`http://127.0.0.1:8000/api/topics/${numericSubjectId}`)
+    const response = await fetch(`${baseUrl}8000/api/topics/${numericSubjectId}`)
     if (response.status === 404) {
       topics.value = []
     } else if (!response.ok) {
@@ -273,6 +290,9 @@ function applyFiltersOnQuestions() {
     topic: topicName
   }
   fetchQuestions()
+  if (isMobile.value) {
+    open.value = false
+  }
 }
 
 async function fetchQuestions() {
@@ -345,9 +365,10 @@ onMounted(async () => {
     open.value = !event.matches
   }
   mql.addEventListener('change', onMqlChange)
+  const baseUrl = "http://192.168.0.168:"
   if (!subjectStore.selectedSubject || subjectStore.selectedSubject.id !== subjectId.value) {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/subjects/${subjectId.value}`)
+      const res = await fetch(`${baseUrl}8000/api/subjects/${subjectId.value}`)
       if (res.ok) {
         const data = await res.json()
         subjectStore.selectSubject(data)

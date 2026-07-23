@@ -1,5 +1,5 @@
 <template>
-  <Menubar class="p-4 sticky top-0 z-50 bg-white border-b border-gray-200">
+  <Menubar class="p-4 z-40 bg-white border-b border-gray-200">
     <template #start>
       <div class="flex items-center flex-wrap gap-6 mx-2 relative bg-white">
         <span class="text-primary text-2xl font-bold">SmartQBank</span>
@@ -13,7 +13,7 @@
           <template #item="{ item, props }">
             <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
               <a :href="href" v-bind="props.action" @click="navigate" class="flex items-center gap-2">
-                <span v-if="item.icon" :class="item.icon"></span>
+                <span v-if="item.icon" :class="item.icon" class="hover:text-tertiary"></span>
                 <span v-if="item.label">{{ item.label }}</span>
               </a>
             </router-link>
