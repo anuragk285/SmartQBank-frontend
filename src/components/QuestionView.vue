@@ -23,10 +23,6 @@
           <!-- Sidebar Header -->
           <div class="flex flex-col gap-2 mb-2">
             <h2 class="tracking-widest text-sm font-inter text-gray-500">FILTERS</h2>
-            <!-- <div>
-              <h3 class="tracking-wide font-inter text-xl font-bold text-gray-800">Refine your search</h3>
-              <h3 class="tracking-wide text-xs font-inter text-gray-500">Find specific question easily</h3>
-            </div> -->
           </div>
 
           <!-- Sidebar Content / Menu -->
@@ -118,37 +114,48 @@
       </aside>
 
       <!-- Main Content Area -->
-      <main class="flex-1 min-w-0 w-full">
-        <header class="dark:border-surface-700 bg-white z-30 mx-auto transition-all duration-300 ease-in-out ps-4 sm:p-0"
-                :class="isMobile ? 'w-full' : open ? 'w-[80ch]' : 'w-[95ch]'">
-          <Button severity="secondary" text size="small" @click="open = !open" class="flex items-center gap-2 border-gray-300 bg-gray-50 mt-4 ms-1 hover:bg-gray-100">
-            <h4 class=" text-blue-500 text-lg sm:text-sm">FILTERS</h4>
-            <span class="pi pi-filter text-blue-500 text-lg sm:text-sm"></span>
-          </Button>
-        </header>
-
-        <div class="p-4">
-          <div 
-            class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start p-2 mx-auto transition-all duration-300 ease-in-out"
-            :class="isMobile ? 'w-full' : open ? 'w-[80ch]' : 'w-[95ch]'"
-          >
-            <!-- Left Side: Titles -->
-            <div class="flex flex-col gap-2">
-              <h1 class="font-inter font-bold text-2xl text-primary-dark tracking-wide">
-                {{ selectedSubject?.name }}
-              </h1>
-              <div class="flex gap-2 flex-wrap">
-                <h3 class="font-medium tracking-tight">{{ selectedSubject?.subject_code }}</h3>
-                <span>⋅</span>
-                <h3 class="text-tertiary">{{ total }} questions.</h3>
-              </div>
+      <main class="flex-1 min-w-0 w-full mt-5">
+        <div class="pl-4">
+          <header class="dark:border-surface-700 bg-white z-30 mx-auto transition-all duration-300 ease-in-out"
+          :class="isMobile ? 'w-full' : (open ? 'w-full max-w-[85ch]' : 'w-full max-w-[95ch]')">
+          
+          <div class="flex flex-col gap-2 ml-3 mt-3">
+            <h1 class="font-inter font-bold text-2xl text-primary-dark tracking-wide ">
+              {{ selectedSubject?.name }}
+            </h1>
+            <div class="flex gap-2 flex-wrap">
+              <h3 class="font-medium tracking-tight">#{{ selectedSubject?.subject_code }}</h3>
+              <span>⋅</span>
+              <h3 class="text-tertiary">{{ total }} questions.</h3>
             </div>
+          </div>
+        </header>
+      </div>
+      <div class="px-2">
+        <div class="mx-auto px-4 transition-all duration-300 ease-in-out" :class="isMobile ? 'w-full' : (open ? 'w-full max-w-[85ch]' : 'w-full max-w-[95ch]')">
+          <Divider/>
+        </div>
+      </div>
+        <div class="px-4">
+          <div 
+            class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start px-2 sm:mx-auto transition-all duration-300 ease-in-out"
+            :class="isMobile ? 'w-full' : (open ? 'w-full max-w-[85ch]' : 'w-full max-w-[95ch]')"
+          >
+            <!-- Left Side: Filter -->
+             <div class="flex flex-wrap gap-5">
+                <Button severity="secondary" size="small" @click="open = !open" class="flex items-center gap-2 border-gray-300 bg-gray-50 mt-4 hover:bg-gray-100">
+                 <h4 class=" text-sky-700 text-lg sm:text-sm">FILTERS</h4>
+                 <span class="pi pi-filter text-sky-700 text-lg sm:text-sm"></span>
+                </Button>
+                <!-- <h4 class="self-end hover:text-tertiary cursor-pointer underline"><i>clear filters</i></h4> -->
+                <Button @click="removeFilters()" unstyled class="self-end pb-1 mt-4 ms-1 underline cursor-pointer text-surface-500 hover:text-tertiary"><i>clear filters</i></Button>
+              </div>
 
             <!-- Right Side: Filters -->
-            <div class=" sm:self-end">
-              <div class="flex gap-2 sm:flex-row sm:items-end">
-                <Select v-model="sortBy" :options="sortableItems" optionLabel="label" placeholder="Sort By"></Select>
-                <Select v-model="sortOrder" :options="sortableOrders" optionLabel="label" placeholder="Order By"></Select>  
+            <div class="sm:self-end">
+              <div class="flex gap-4 sm:flex-row sm:items-end ">
+                <Select v-model="sortBy" size="small" :options="sortableItems" :disabled="total === 0" optionLabel="label" placeholder="Sort By" :class="total === 0 ? 'bg-gray-100' : ''"></Select>
+                <Select v-model="sortOrder" size="small" :options="sortableOrders" :disabled="total === 0" optionLabel="label" placeholder="Order By" :class="total === 0 ? 'bg-gray-100' : ''"></Select>  
               </div>
             </div>
           </div>
@@ -170,6 +177,7 @@
                   :topic="q.topic"
                   :isMobile="isMobile"
                   :open="open"
+                  @selectedTopic="showSelectedTopicQuestions($event)"
                 />
               </div>
 
@@ -184,7 +192,8 @@
             </div>
             <div
               v-else
-              class="flex flex-col items-center justify-center p-8 text-center border border-dashed border-gray-300 rounded-lg bg-gray-50 my-4"
+              class="flex flex-col items-center justify-center p-8 text-center border border-dashed border-gray-300 rounded-lg bg-gray-50 my-4 transition-all duration-300 ease-in-out mx-auto"
+              :class="isMobile ? 'w-full' : open ? 'w-[85ch]' : 'w-[95ch]'"
             >
               <span class="pi pi-filter-slash text-3xl text-gray-400 mb-2"></span>
               <h3 class="text-base font-semibold text-gray-700">No questions match your filters</h3>
@@ -212,6 +221,7 @@ import Button from 'primevue/button'
 import Chip from 'primevue/chip'
 import TreeSelect from 'primevue/treeselect'
 import Select from 'primevue/select'
+import Divider from 'primevue/divider'
 
 import QuestionCard from './QuestionCard.vue'
 
@@ -251,7 +261,21 @@ const sortableOrders = ref([
   { label: 'Ascending', value: 'asc' },
   { label: 'Descending', value: 'desc' }
 ])
-
+async function showSelectedTopicQuestions(topic) {  
+  filters.value.topic = topic
+  await fetchQuestions()
+}
+async function removeFilters() {
+  filters.value.difficulty = []
+  filters.value.marks = []
+  filters.value.units = []
+  filters.value.topic = null
+  selectedDifficulties.value = []
+  selectedMarksIndices.value = []
+  selectedUnitsIndices.value = []
+  selectedTopic.value = null
+  await fetchQuestions()
+}
 async function loadTopics() {
   const numericSubjectId = subjectId.value
   const baseUrl = "http://192.168.0.168:"
@@ -352,7 +376,6 @@ function onSelectUnitChips(index) {
 
 onMounted(async () => {
   if (typeof window === 'undefined') return
-
   mql = window.matchMedia('(max-width: 1023px)')
   isMobile.value = mql.matches
   
@@ -452,6 +475,7 @@ const convertToTree = (topicsList) => {
 
   return [...unitsMap.values()]
 }
+
 </script>
 
 <style scoped>
@@ -459,5 +483,26 @@ const convertToTree = (topicsList) => {
 :deep(.p-cascadeselect-sublist) {
   max-height: 260px;
   overflow-y: auto;
+}
+:deep(.p-tree-toggler),
+:deep(.p-tree-node-toggle-button) {
+  color: var(--color-primary) !important; /* Tailwind slate-500 */
+}
+:deep(.p-tree-toggler),
+:deep(.p-tree-node-toggle-button) {
+  width: 1.75rem !important;
+  height: 1.75rem !important;
+  border-radius: 9999px !important; /* Makes it a pill/circle */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color 0.2s ease, color 0.2s ease !important;
+}
+
+/* 2. Apply the gray background when the row/content is hovered */
+:deep(.p-treenode-content:hover .p-tree-toggler),
+:deep(.p-tree-node-content:hover .p-tree-node-toggle-button) {
+  background-color: #f3f4f6 !important; /* Tailwind gray-100 */
+  color: #374151 !important;            /* Tailwind gray-700 */
 }
 </style>

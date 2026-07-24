@@ -80,9 +80,11 @@
               </div>
 
               <!-- Apply Button -->
-              <div>
-                <Button class="w-full cursor-pointer" @click="applyFilterOnSubjects">APPLY FILTER</Button>
-              </div>
+              <div class="pt-2">
+              <Button class="w-full cursor-pointer bg-sky-800 border-sky-800 text-white" @click="applyFilterOnSubjects()">
+                APPLY FILTER
+              </Button>
+            </div>
             </div>
           </div>
 

@@ -1,9 +1,15 @@
 <template>
-  <Menubar class="p-4 z-40 bg-white border-b border-gray-200">
-    <template #start>
-      <div class="flex items-center flex-wrap gap-6 mx-2 relative bg-white">
-        <span class="text-primary text-2xl font-bold">SmartQBank</span>
-
+  <header class="px-4 md:px-4 py-3 z-40 bg-white border-b border-gray-200 shadow-sm">
+    <div class="flex flex-wrap flex-row items-center gap-x-12 gap-y-3">
+      <div class="flex items-center gap-1">
+        <router-link to="/">
+          <span class="text-primary text-2xl font-bold tracking-tight">SmartQBank</span>
+        </router-link>
+        <div class="flex items-center">
+          <span class="px-2.5 py-1 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-sky-700 bg-sky-50 border border-sky-200 rounded-full shadow-sm cursor-default">Beta</span>
+        </div>
+      </div>  
+      <div class="">
         <Breadcrumb
           v-if="route.name !== 'subjects'"
           :home="home"
@@ -12,39 +18,37 @@
         >
           <template #item="{ item, props }">
             <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-              <a :href="href" v-bind="props.action" @click="navigate" class="flex items-center gap-2">
-                <span v-if="item.icon" :class="item.icon" class="hover:text-tertiary"></span>
-                <span v-if="item.label">{{ item.label }}</span>
+              <a :href="href" v-bind="props.action" @click="navigate" class="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors">
+                <span v-if="item.icon" :class="item.icon" class="text-sm"></span>
+                <span v-if="item.label" class="text-sm font-medium">{{ item.label }}</span>
               </a>
             </router-link>
             
-            <span v-else v-bind="props.action" class="flex items-center gap-2 hover:text-tertiary">
-              <span v-if="item.icon" :class="item.icon"></span>
-              <span v-if="item.label">{{ item.label }}</span>
+            <span v-else v-bind="props.action" class="flex items-center gap-2  font-semibold">
+              <span v-if="item.icon" :class="item.icon" class="text-sm"></span>
+              <span v-if="item.label" class="text-sm text-gray-500 hover:text-tertiary">{{ item.label }}</span>
             </span>
+          </template>
+          
+          <template #separator>
+            <span class="pi pi-angle-right text-gray-400 text-xl mx-[0.5]"></span>
           </template>
         </Breadcrumb>
       </div>
-    </template>
-    
-    <template #end>
-      <Avatar shape="circle" :image="avatarImage" class="cursor-pointer" />
-    </template>
-  </Menubar>
+    </div>
+  </header>
 </template>
 <script setup>
+import Breadcrumb from 'primevue/breadcrumb'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { storeToRefs } from 'pinia'
 import { useSubjectStore } from '@/stores/subject'
-import { Menubar, Avatar } from 'primevue'
-import Breadcrumb from 'primevue/breadcrumb'
-import avatarImage from '@/assets/images/onePunchMan.jpeg'
-const route = useRoute() 
-const subjectStore = useSubjectStore()
-const { selectedSubject } = storeToRefs(subjectStore)
+import { storeToRefs } from 'pinia'
 
 const home = { icon: 'pi pi-home', route: '/' }
+const route = useRoute()
+const subjectStore = useSubjectStore()
+const { selectedSubject } = storeToRefs(subjectStore)
 
 const breadcrumbItems = computed(() => {
   if (route.name === 'questions' && selectedSubject.value) {
@@ -57,7 +61,7 @@ const breadcrumbItems = computed(() => {
       })
     }
     if (sub.name) {
-      items.push({ label: sub.name })
+      items.push({ label: selectedSubject.value.name })
     }
 
     return items

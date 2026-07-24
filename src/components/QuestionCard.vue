@@ -1,5 +1,5 @@
 <template>
-  <div :class="isMobile ? 'w-full' : (open ? 'w-[80ch]' : 'w-[95ch]')" class="transition-all duration-300 ease-in-out">
+  <div :class="isMobile ? 'w-full' : (open ? 'w-full max-w-[85ch]' : 'w-full max-w-[95ch]')" class="transition-all duration-300 ease-in-out">
     <Card class="px-3 py-2 border border-gray-300">
       <template #header>
         <div class="flex flex-wrap justify-between items-center mt-4 mx-4 gap-3">
@@ -8,7 +8,7 @@
             <span>⋅</span>
             <h4 class="text-sm">{{ year }}</h4>
             <span>⋅</span>
-            <h4 class="text-primary text-sm"><i>#{{ topic }}</i></h4>
+            <h4 class=" text-primary text-sm hover:underline cursor-pointer" @click="$emit('selectedTopic', topic)"><i>#{{ topic }}</i></h4>
           </div>
           <div class="flex gap-3 flex-wrap">
             <Badge severity="secondary" class="font-inter text-xs text-tertiary rounded-md px-1.25 py-1 flex gap-1 items-center"><span class="text-sm">{{ marks }}</span> marks</Badge>
@@ -18,7 +18,7 @@
       </template>
       <template #content>
         <h1 class="flex items-baseline text-xl font-medium font-inter text-start">
-          <span class="shrink-0 font-light text-base mr-2">
+          <span class="font-light text-base text-tertiary mr-2" :class="isMobile ? 'shrink' : 'shrink-0'">
             Q{{ question_id }} <span class="text-xl font-medium ml-1">⋅</span>
           </span>
           <span class="flex-1">
