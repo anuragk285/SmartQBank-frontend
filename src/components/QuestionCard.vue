@@ -4,9 +4,9 @@
       <template #header>
         <div class="flex flex-wrap justify-between items-center mt-4 mx-4 gap-3">
           <div class="flex gap-2 flex-wrap items-center">
-            <h4 class="text-sm">Unit {{ unit }}</h4>
+            <h4 class="text-sm text-gray-500">Unit {{ unit }}</h4>
             <span>⋅</span>
-            <h4 class="text-sm">{{ year }}</h4>
+            <h4 class="text-sm text-gray-500">{{ year }}</h4>
             <span>⋅</span>
             <h4 class=" text-primary text-sm hover:underline cursor-pointer" @click="$emit('selectedTopic', topic)"><i>#{{ topic }}</i></h4>
           </div>
@@ -18,7 +18,7 @@
       </template>
       <template #content>
         <h1 class="flex items-baseline text-xl font-medium font-inter text-start">
-          <span class="font-light text-base text-tertiary mr-2" :class="isMobile ? 'shrink' : 'shrink-0'">
+          <span class="font-light text-base mr-2" :class="isMobile ? 'shrink' : 'shrink-0'">
             Q{{ question_id }} <span class="text-xl font-medium ml-1">⋅</span>
           </span>
           <span class="flex-1">

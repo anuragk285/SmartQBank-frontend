@@ -25,10 +25,6 @@
           <!-- Sidebar Header -->
           <div class="mb-4">
               <h2 class="tracking-widest text-sm font-inter text-gray-500">FILTERS</h2>
-              <!-- <div>
-                    <h3 class="tracking-wide font-inter text-xl font-bold text-gray-800">Refine your search</h3>
-                    <h3 class="tracking-wide text-xs font-inter text-gray-500">Select a subject</h3>  
-                  </div> -->
           </div>
 
           <!-- Sidebar Content / Menu -->
@@ -40,7 +36,7 @@
                 <Select
                   id="department"
                   :options="departments"
-                  default-value="CSE"
+                  :default-value="selectedDepartment"
                   v-model="selectedDepartment"
                   option-label="label"
                   option-value="value"
@@ -56,7 +52,7 @@
                 <Select
                   id="semester"
                   :options="semesters"
-                  :default-value="5"
+                  :default-value="selectedSemester"
                   v-model="selectedSemester"
                   option-label="label"
                   option-value="value"
@@ -87,82 +83,60 @@
             </div>
             </div>
           </div>
-
-          <!-- Sidebar Footer -->
-          <div class="flex flex-col gap-3 mt-auto pt-4">
-            <div v-for="group in sidebarFooterItems" :key="group.label" class="w-full flex flex-col gap-4">
-              <hr class="mb-3 border-gray-200" />
-              <div v-for="item in group.items" :key="item.label">
-                <button class="p-2 flex items-center gap-2 w-full hover:bg-gray-100 rounded-md transition-colors text-left cursor-pointer">
-                  <component :is="item.icon" class="w-4 h-4 me-2 text-black" />
-                  <span class="text-sm font-medium text-gray-700">{{ item.label }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </aside>
 
       <!-- Main Content Area -->
-      <main class="flex-1 min-w-0 w-full transition-all duration-300 ease-in-out" >
-        <header class="flex h-12 items-center gap-2 dark:border-surface-700 px-4 bg-white z-30">
+      <main class="flex-1 min-w-0 transition-all duration-300 ease-in-out"
+            :class="isMobile ? 'w-full px-4' : open ? 'px-6' : 'px-[10%]'">
+        <header class="px-1 mb-3 bg-white z-30">
           <Button severity="secondary" text size="small" @click="open = !open" class="flex items-center gap-2 border-gray-300 bg-gray-50 ms-1 mt-4">
-            <h4 class="text-blue-500 text-lg sm:text-sm">FILTERS</h4>
-            <span class="pi pi-filter text-blue-500 text-lg sm:text-sm"></span>
+            <h4 class="text-sky-700 text-lg sm:text-sm">FILTERS</h4>
+            <span class="pi pi-filter text-sky-700 text-lg sm:text-sm"></span>
           </Button>
         </header>
 
-        <div class="px-6 py-4 flex flex-col gap-5">
-          <div class="flex flex-col gap-1">
-            <h1 class="text-primary text-3xl font-bold">Subjects</h1>
+        <div class="mx-2 flex flex-col gap-5">
+          <div class="mx-1 flex flex-col gap-1">
+            <div class="flex flex-nowrap gap-2 text-primary items-center text-2xl font-bold">
+              <h2>{{ headerRegulationCode }}</h2>
+              <span class="pi pi-angle-right text-xl mx-[0.5]"></span>
+              <h2>{{ headerDepartment }}</h2> 
+              <span class="pi pi-angle-right text-xl mx-[0.5]"></span>
+              <h2>Sem {{ headerSemester }}</h2>
+          </div>
+            <!-- <h1 class="text-primary text-xl font-bold">Subjects</h1> -->
             <h2 class="text-gray-500">Select a subject to view questions</h2>
           </div>
-
           <div>
-            <!-- Loading Skeletons -->
-            <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
-              <div v-for="n in 6" :key="n" class="h-full">
-                <Card class="h-full min-w-2xs border border-gray-300" :pt="{ body: 'h-full flex flex-col justify-between p-3' }">
-                  <template #title>
-                    <div class="flex flex-col gap-3">
-                      <div class="flex justify-start gap-3">
-                        <Skeleton width="4.5rem" height="2.25rem" borderRadius="6px" />
-                      </div>
-                      <div class="ms-2 flex flex-col gap-2 min-h-16 justify-center">
-                        <Skeleton width="85%" height="1.25rem" />
-                        <Skeleton width="55%" height="1.25rem" />
-                      </div>
-                    </div>
-                  </template>
-                  <template #footer>
-                    <div class="pt-1">
-                      <Skeleton width="7rem" height="1.25rem" />
-                    </div>
-                  </template>
-                </Card>
-              </div>
+            <div v-if="filteredSubjects.length > 0 || loading" class="w-full">
+                <DataTable :value="loading ? Array(5).fill({}) : filteredSubjects" @row-click="onRowClick" row-hover class="cursor-pointer" :row-class="getRowClass">
+                  <Column header="Subject Name" sortable field="name" class="text-primary hover:text-primary-dark">
+                    <template #body="{ data }">
+                      <Skeleton v-if="loading" width="10rem" height="1rem" borderRadius="16px"/>
+                      <span v-else >{{ data.name }}</span>
+                    </template>
+                  </Column>
+                    <Column header="Subject Code" class="hover:text-tertiary">
+                      <template #body="{ data }">
+                        <Skeleton v-if="loading" width="5rem" height="1rem" borderRadius="16px"/>
+                        <span class="sm:pl-3" v-else>{{ data.subject_code }}</span>
+                      </template>
+                  </Column>
+                  <Column header="No of Questions" class="hover:text-tertiary">
+                    <template #body="{ data }">
+                      <Skeleton v-if="loading" width="5rem" height="1rem" borderRadius="16px"/>
+                      <span class="sm:pl-6" v-else>{{ data.question_count }}</span>
+                    </template>
+                  </Column>
+                </DataTable>
             </div>
-
-            <!-- Subject Cards List -->
-            <div v-else>
-              <div v-if="filteredSubjects.length > 0">
-                <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-4 w-full">
-                  <div v-for="subject in filteredSubjects" :key="subject.id" @click="onSubjectSelect(subject)" class="h-full">
-                    <SubjectCard
-                      :subject_code="subject.subject_code"
-                      :subject_name="subject.name"
-                      class="cursor-pointer"
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Empty State -->
-              <div v-else class="flex flex-col items-center justify-center p-8 text-center border border-dashed border-gray-300 rounded-lg bg-gray-50 my-4">
-                <span class="pi pi-filter-slash text-3xl text-gray-400 mb-2"></span>
-                <h3 class="text-base font-semibold text-gray-700">ERROR 404</h3>
-                <p class="text-xs text-gray-500 mt-1">No Subjects Found.</p>
-              </div>
+            
+            <!-- Empty State -->
+            <div v-else class="flex flex-col items-center justify-center p-8 text-center border border-dashed border-gray-300 rounded-lg bg-gray-50 my-4">
+              <span class="pi pi-filter-slash text-3xl text-gray-400 mb-2"></span>
+              <h3 class="text-base font-semibold text-gray-700">ERROR 404</h3>
+              <p class="text-xs text-gray-500 mt-1">No Subjects Found.</p>
             </div>
           </div>
         </div>
@@ -176,27 +150,28 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSubjectStore } from '@/stores/subject.js'
 
-// PrimeVue 4 Imports (Note: Dropdown was renamed to Select in v4)
 import Select from 'primevue/select'
 import Button from 'primevue/button'
 import RadioButton from 'primevue/radiobutton'
 import Skeleton from 'primevue/skeleton'
-import Card from 'primevue/card'
-
-import SubjectCard from './SubjectCard.vue'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 
 const router = useRouter()
 const subjectStore = useSubjectStore()
 
-const selectedDepartment = ref('CSE')
-const selectedSemester = ref(5)
+const selectedDepartment = ref(subjectStore.filters.department || 'CSE')
+const selectedSemester = ref(subjectStore.selectedSubject?.semester || 5)
+const selectedRegulationCode = ref(subjectStore.filters.regulation_code || 'R22')
 const loading = ref(false)
 const allSubjects = ref([])
 const filteredSubjects = ref([])
-const selectedRegulationCode = ref('R22')
 const checkInitialMobile = () => typeof window !== 'undefined' && window.innerWidth < 1024
 const isMobile = ref(checkInitialMobile())
 const open = ref(!checkInitialMobile())
+const headerRegulationCode = ref(selectedRegulationCode.value)
+const headerDepartment = ref(selectedDepartment.value)
+const headerSemester = ref(selectedSemester.value)
 
 let mql = null
 let onMqlChange = null
@@ -208,7 +183,6 @@ const regulationCodes = ref([
   { label: 'R18', value: 'R18' },
 ])
 
-const sidebarFooterItems = ref([])
 async function loadAllSubjects() {
   const baseUrl = "http://192.168.0.168:"
   loading.value = true
@@ -225,6 +199,9 @@ async function loadAllSubjects() {
 }
 
 async function applyFilterOnSubjects() {
+  headerDepartment.value = selectedDepartment.value
+  headerRegulationCode.value = selectedRegulationCode.value
+  headerSemester.value = selectedSemester.value
   await loadAllSubjects()
   if (isMobile.value) {
     open.value = false
@@ -280,8 +257,15 @@ const semesters = ref([
   { label: 8, value: 8 },
 ])
 
+function onRowClick(event) {
+  onSubjectSelect(event.data)
+}
+
 function onSubjectSelect(subject) {
   subjectStore.selectSubject(subject)
+  subjectStore.filters.department = selectedDepartment
+  subjectStore.filters.semester = selectedSemester
+  subjectStore.filters.regulation_code = selectedRegulationCode
   router.push({ name: 'questions', params: { subjectId: subject.id } })
 }
 
@@ -291,6 +275,10 @@ const scrollToTop = () => {
     behavior: 'smooth'
   })
 }
+const getRowClass = () => {
+  return 'hover:font-medium transition-all duration-100 ease-in-out'
+}
+
 </script>
 
 <style scoped></style>

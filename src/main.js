@@ -6,9 +6,10 @@ import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primevue/themes'
 import router from './router'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import 'primeicons/primeicons.css'
 
-const AcademicNavyPreset = definePreset(Aura, {
+const MyPreset = definePreset(Aura, {
   semantic: {
     primary: {
       50: '#eef2ff',
@@ -71,6 +72,17 @@ const AcademicNavyPreset = definePreset(Aura, {
     },
     badge: {
       borderRadius: '0.25rem',
+    },
+    datatable: {
+      colorScheme: {
+        light: {
+          headerCell: {
+            hoverBackground: '{surface.50}',
+            selectedBackground: '{surface.0}', // Overrides the blue sorted background
+            highlightBackground: '{surface.0}' 
+          }
+        }
+      }
     }
   }
 })
@@ -79,7 +91,7 @@ const app = createApp(App)
 app.use(PrimeVue, {
   license: import.meta.env.VITE_PRIMEVUE_API_KEY,
   theme: {
-    preset: AcademicNavyPreset,
+    preset: MyPreset,
     options: {
       cssLayer: {
         name: 'primevue',
@@ -89,6 +101,6 @@ app.use(PrimeVue, {
     },
   },
 })
-app.use(createPinia())
+app.use(createPinia().use(piniaPluginPersistedstate))
 app.use(router)
 app.mount('#app')

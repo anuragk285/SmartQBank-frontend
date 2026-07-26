@@ -115,7 +115,7 @@
 
       <!-- Main Content Area -->
       <main class="flex-1 min-w-0 w-full mt-5">
-        <div class="pl-4">
+        <div class="px-2">
           <header class="dark:border-surface-700 bg-white z-30 mx-auto transition-all duration-300 ease-in-out"
           :class="isMobile ? 'w-full' : (open ? 'w-full max-w-[85ch]' : 'w-full max-w-[95ch]')">
           
@@ -124,7 +124,7 @@
               {{ selectedSubject?.name }}
             </h1>
             <div class="flex gap-2 flex-wrap">
-              <h3 class="font-medium tracking-tight">#{{ selectedSubject?.subject_code }}</h3>
+              <h3 class=" text-gray-500">#{{ selectedSubject?.subject_code }}</h3>
               <span>⋅</span>
               <h3 class="text-tertiary">{{ total }} questions.</h3>
             </div>
