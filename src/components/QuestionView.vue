@@ -209,7 +209,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount} from 'vue'
 import { useRoute } from 'vue-router'
 import { useSubjectStore } from '@/stores/subject'
 import { storeToRefs } from 'pinia'
@@ -251,6 +251,9 @@ const sortOrder = ref()
 const checkInitialMobile = () => typeof window !== 'undefined' && window.innerWidth < 1024
 const isMobile = ref(checkInitialMobile())
 const open = ref(!checkInitialMobile())
+const baseUrl = import.meta.env.VITE_API_BASE_URL
+const loading = ref(false)
+
 
 const sortableItems = ref([
   { label: 'Marks', value: 'marks' },
@@ -277,8 +280,8 @@ async function removeFilters() {
   await fetchQuestions()
 }
 async function loadTopics() {
+  loading.value = true
   const numericSubjectId = subjectId.value
-  const baseUrl = "http://192.168.0.168:"
   try {
     const response = await fetch(`${baseUrl}8000/api/topics/${numericSubjectId}`)
     if (response.status === 404) {
@@ -293,6 +296,7 @@ async function loadTopics() {
     console.log('Failed to load topics:', error)
     topics.value = []
   }
+  loading.value = false
 }
 
 function applyFiltersOnQuestions() {
@@ -320,8 +324,8 @@ function applyFiltersOnQuestions() {
 }
 
 async function fetchQuestions() {
+  loading.value = true
   const numericSubjectId = subjectId.value
-  const baseUrl = "http://192.168.0.168:"
   const params = new URLSearchParams({ page: page.value, page_size: rows.value })
   filters.value.units.forEach(u => params.append('units', u))
   filters.value.difficulty.forEach(d => params.append('difficulty', d))
@@ -340,14 +344,8 @@ async function fetchQuestions() {
   } catch (e) {
     console.error('Failed to fetch questions:', e)
   }
+  loading.value = false
 }
-
-watch([filters, sortBy, sortOrder], () => {
-  page.value = 1
-  first.value = 0
-  scrollToTop()
-  fetchQuestions()
-}, { deep: true })
 
 function onPageChange(event) {
   page.value = event.page + 1
@@ -388,7 +386,7 @@ onMounted(async () => {
     open.value = !event.matches
   }
   mql.addEventListener('change', onMqlChange)
-  const baseUrl = "http://192.168.0.168:"
+  loading.value = true
   if (!subjectStore.selectedSubject || subjectStore.selectedSubject.id !== subjectId.value) {
     try {
       const res = await fetch(`${baseUrl}8000/api/subjects/${subjectId.value}`)
@@ -400,16 +398,9 @@ onMounted(async () => {
       console.error('Failed to fetch subject details', e)
     }
   }
+  loading.value = false
   loadTopics()
   fetchQuestions()
-  mql = window.matchMedia('(max-width: 1023px)')
-  isMobile.value = mql.matches
-  open.value = !isMobile.value
-  onMqlChange = (event) => {
-    isMobile.value = event.matches
-    open.value = !event.matches
-  }
-  mql.addEventListener('change', onMqlChange)
 })
 
 onBeforeUnmount(() => {

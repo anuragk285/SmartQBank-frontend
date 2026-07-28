@@ -111,7 +111,7 @@
           <div>
             <div v-if="filteredSubjects.length > 0 || loading" class="w-full">
                 <DataTable :value="loading ? Array(5).fill({}) : filteredSubjects" @row-click="onRowClick" row-hover class="cursor-pointer" :row-class="getRowClass">
-                  <Column header="Subject Name" sortable field="name" class="text-primary hover:text-primary-dark">
+                  <Column header="Subject Name" sortable field="name" class="hover:text-primary-dark">
                     <template #body="{ data }">
                       <Skeleton v-if="loading" width="10rem" height="1rem" borderRadius="16px"/>
                       <span v-else >{{ data.name }}</span>
@@ -172,6 +172,7 @@ const open = ref(!checkInitialMobile())
 const headerRegulationCode = ref(selectedRegulationCode.value)
 const headerDepartment = ref(selectedDepartment.value)
 const headerSemester = ref(selectedSemester.value)
+const baseUrl = import.meta.env.VITE_API_BASE_URL
 
 let mql = null
 let onMqlChange = null
@@ -184,7 +185,6 @@ const regulationCodes = ref([
 ])
 
 async function loadAllSubjects() {
-  const baseUrl = "http://192.168.0.168:"
   loading.value = true
   try {
     const subjectsRes = await fetch(`${baseUrl}8000/api/subjects/${selectedDepartment.value}/${selectedSemester.value}/${selectedRegulationCode.value}`)
@@ -235,7 +235,7 @@ onBeforeUnmount(() => {
 const departments = ref([
   { label: 'CSE', value: 'CSE' },
   { label: 'IT', value: 'IT' },
-  { label: 'CSM', value: 'CSM' },
+  { label: 'CSM', value: 'CSE-AI&ML' },
   { label: 'AI&ML', value: 'AI&ML' },
   { label: 'CET', value: 'CET' },
   { label: 'Mechanical', value: 'Mech' },
@@ -263,9 +263,9 @@ function onRowClick(event) {
 
 function onSubjectSelect(subject) {
   subjectStore.selectSubject(subject)
-  subjectStore.filters.department = selectedDepartment
-  subjectStore.filters.semester = selectedSemester
-  subjectStore.filters.regulation_code = selectedRegulationCode
+  subjectStore.filters.department = selectedDepartment.value
+  subjectStore.filters.semester = selectedSemester.value
+  subjectStore.filters.regulation_code = selectedRegulationCode.value
   router.push({ name: 'questions', params: { subjectId: subject.id } })
 }
 
