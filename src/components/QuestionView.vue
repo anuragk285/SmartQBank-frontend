@@ -283,7 +283,7 @@ async function loadTopics() {
   loading.value = true
   const numericSubjectId = subjectId.value
   try {
-    const response = await fetch(`${baseUrl}8000/api/topics/${numericSubjectId}`)
+    const response = await fetch(`${baseUrl}/api/topics/${numericSubjectId}`)
     if (response.status === 404) {
       topics.value = []
     } else if (!response.ok) {
@@ -337,7 +337,7 @@ async function fetchQuestions() {
   if (filters.value.topic) params.append('topic', filters.value.topic)
   
   try {
-    const res = await fetch(`${baseUrl}8000/api/subjects/${numericSubjectId}/questions?${params}`)
+    const res = await fetch(`${baseUrl}/api/subjects/${numericSubjectId}/questions?${params}`)
     const data = await res.json()
     questions.value = data.questions
     total.value = data.total
@@ -389,7 +389,7 @@ onMounted(async () => {
   loading.value = true
   if (!subjectStore.selectedSubject || subjectStore.selectedSubject.id !== subjectId.value) {
     try {
-      const res = await fetch(`${baseUrl}8000/api/subjects/${subjectId.value}`)
+      const res = await fetch(`${baseUrl}/api/subjects/${subjectId.value}`)
       if (res.ok) {
         const data = await res.json()
         subjectStore.selectSubject(data)

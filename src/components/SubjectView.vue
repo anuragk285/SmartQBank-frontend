@@ -187,7 +187,7 @@ const regulationCodes = ref([
 async function loadAllSubjects() {
   loading.value = true
   try {
-    const subjectsRes = await fetch(`${baseUrl}8000/api/subjects/${selectedDepartment.value}/${selectedSemester.value}/${selectedRegulationCode.value}`)
+    const subjectsRes = await fetch(`${baseUrl}/api/subjects/${selectedDepartment.value}/${selectedSemester.value}/${selectedRegulationCode.value}`)
     if (!subjectsRes.ok) throw new Error('API Connection failed')
     allSubjects.value = await subjectsRes.json()
   } catch (error) {
