@@ -10,24 +10,19 @@
         :class="[
           'bg-white border-gray-200 transition-all duration-300 z-50 flex flex-col justify-between overflow-hidden',
 
-          /* Mobile drawer: */
           'fixed top-0 bottom-0 left-0 w-80 shadow-2xl h-screen',
           open ? 'translate-x-0' : '-translate-x-full',
 
-          /* Desktop sticky sidebar*/
           'lg:sticky lg:top-0 lg:bottom-auto lg:shadow-none lg:translate-x-0 lg:h-screen',
           open ? 'lg:w-80 lg:border-r' : 'lg:w-0 lg:border-r-0'
         ]"
       >
         <div class="p-4 flex flex-col gap-4 w-80 translate-x h-full overflow-y-auto overscroll-contain">
-          <!-- Sidebar Header -->
           <div class="flex flex-col gap-2 mb-2">
             <h2 class="tracking-widest text-sm font-inter text-gray-500">FILTERS</h2>
           </div>
 
-          <!-- Sidebar Content / Menu -->
           <div class="flex flex-col gap-5">
-            <!-- Topic Filter -->
             <div class="flex flex-col gap-2">
               <label class="text-xs font-bold text-gray-700 tracking-wider">TOPIC</label>
               <TreeSelect
@@ -39,7 +34,6 @@
               />
             </div>
 
-            <!-- Unit Filter -->
             <div class="flex flex-col gap-1">
               <label for="unit" class="text-xs font-bold text-gray-700 tracking-wider">UNIT</label>
               <div class="flex flex-wrap gap-2" id="unit">
@@ -65,7 +59,6 @@
               </div>
             </div>
 
-            <!-- Difficulty Filter -->
             <div class="flex flex-col gap-1">
               <label for="difficulty" class="text-xs font-bold text-gray-700 tracking-wider">DIFFICULTY</label>
               <div class="flex flex-col gap-3" id="difficulty">
@@ -84,7 +77,6 @@
               </div>
             </div>
 
-            <!-- Marks Filter -->
             <div class="flex flex-col gap-1">
               <label for="marks" class="text-xs font-bold text-gray-700 tracking-wider">MARKS</label>
               <div class="flex flex-wrap gap-2" id="marks">
@@ -103,7 +95,6 @@
               </div>
             </div>
 
-            <!-- Apply Button -->
             <div class="pt-2">
               <Button class="w-full cursor-pointer bg-sky-800 border-sky-800 text-white" @click="applyFiltersOnQuestions()">
                 APPLY FILTER
@@ -113,7 +104,6 @@
         </div>
       </aside>
 
-      <!-- Main Content Area -->
       <main class="flex-1 min-w-0 w-full mt-5">
         <div class="px-2">
           <header class="dark:border-surface-700 bg-white z-30 mx-auto transition-all duration-300 ease-in-out"
@@ -141,27 +131,75 @@
             class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start px-2 sm:mx-auto transition-all duration-300 ease-in-out"
             :class="isMobile ? 'w-full' : (open ? 'w-full max-w-[85ch]' : 'w-full max-w-[95ch]')"
           >
-            <!-- Left Side: Filter -->
              <div class="flex flex-wrap gap-5">
                 <Button severity="secondary" size="small" @click="open = !open" class="flex items-center gap-2 border-gray-300 bg-gray-50 mt-4 hover:bg-gray-100">
                  <h4 class=" text-sky-700 text-lg sm:text-sm">FILTERS</h4>
                  <span class="pi pi-filter text-sky-700 text-lg sm:text-sm"></span>
                 </Button>
-                <!-- <h4 class="self-end hover:text-tertiary cursor-pointer underline"><i>clear filters</i></h4> -->
                 <Button @click="removeFilters()" unstyled class="self-end pb-1 mt-4 ms-1 underline cursor-pointer text-surface-500 hover:text-tertiary"><i>clear filters</i></Button>
               </div>
 
-            <!-- Right Side: Filters -->
             <div class="sm:self-end">
-              <div class="flex gap-4 sm:flex-row sm:items-end ">
-                <Select v-model="sortBy" size="small" :options="sortableItems" :disabled="total === 0" optionLabel="label" placeholder="Sort By" :class="total === 0 ? 'bg-gray-100' : ''"></Select>
-                <Select v-model="sortOrder" size="small" :options="sortableOrders" :disabled="total === 0" optionLabel="label" placeholder="Order By" :class="total === 0 ? 'bg-gray-100' : ''"></Select>  
+              <div class="flex flex-wrap gap-4 sm:flex-row sm:items-center">
+                <FloatLabel variant="on" class="w-32">
+                  <Select 
+                    inputId="sortby" 
+                    v-model="sortBy" 
+                    size="small" 
+                    :options="sortableItems" 
+                    optionLabel="label" 
+                    :disabled="total === 0" 
+                    :class="{ 'bg-gray-100': total === 0 }" 
+                    class="w-full"
+                  />
+                  <label for="sortby" class="whitespace-nowrap">sort by</label>
+                </FloatLabel>
+
+                <FloatLabel variant="on" class="w-36">
+                  <Select 
+                    inputId="orderby" 
+                    v-model="sortOrder" 
+                    size="small" 
+                    :options="sortableOrders" 
+                    optionLabel="label" 
+                    :disabled="total === 0" 
+                    :class="{ 'bg-gray-100': total === 0 }" 
+                    class="w-full"
+                  />
+                  <label for="orderby" class="whitespace-nowrap">order by</label>
+                </FloatLabel>
               </div>
             </div>
           </div>
 
           <div class="mt-4">
-            <div v-if="questions?.length > 0">
+            <div v-if="loading" class="flex flex-col gap-4">
+              <div
+                v-for="n in 10"
+                :key="n"
+                class="mx-auto my-2 px-4 py-6 min-h-32 border border-gray-300 rounded-xl flex flex-col gap-3 justify-between"
+                :class="isMobile ? 'w-full' : open ? 'w-[85ch]' : 'w-[95ch]'"
+              >
+                <div class="flex flex-wrap justify-between items-center gap-3">
+                  <div class="flex gap-2 items-center">
+                    <Skeleton width="4rem" height="1rem" class="bg-gray-200" />
+                    <span class="text-gray-300">⋅</span>
+                    <Skeleton width="4rem" height="1rem" class="bg-gray-200" />
+                    <span class="text-gray-300">⋅</span>
+                    <Skeleton width="10rem" height="1rem" class="bg-gray-200" />
+                  </div>
+                  <div class="flex gap-3">
+                    <Skeleton width="3rem" height="1.25rem" class="rounded-md bg-gray-200" />
+                    <Skeleton width="3rem" height="1.25rem" class="rounded-md bg-gray-200" />
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2 mx-2 mb-1">
+                  <Skeleton width="100%" height="1.25rem" class="bg-gray-200" />
+                  <Skeleton width="4rem" height="1rem" class="bg-gray-200" />
+                </div>
+              </div>
+            </div>
+            <div v-else-if="questions?.length > 0">
               <div class="flex flex-col">
                 <QuestionCard
                   class="p-2 mx-auto"
@@ -180,7 +218,6 @@
                   @selectedTopic="showSelectedTopicQuestions($event)"
                 />
               </div>
-
               <Paginator
                 v-model:first="first"
                 v-model:rows="rows"
@@ -209,7 +246,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount} from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch} from 'vue'
 import { useRoute } from 'vue-router'
 import { useSubjectStore } from '@/stores/subject'
 import { storeToRefs } from 'pinia'
@@ -220,8 +257,10 @@ import Paginator from 'primevue/paginator'
 import Button from 'primevue/button'
 import Chip from 'primevue/chip'
 import TreeSelect from 'primevue/treeselect'
-import Select from 'primevue/select'
 import Divider from 'primevue/divider'
+import Skeleton from 'primevue/skeleton'
+import Select from 'primevue/select'
+import FloatLabel from 'primevue/floatlabel'
 
 import QuestionCard from './QuestionCard.vue'
 
@@ -376,13 +415,10 @@ onMounted(async () => {
   if (typeof window === 'undefined') return
   mql = window.matchMedia('(max-width: 1023px)')
   isMobile.value = mql.matches
-  
-  // Set initial state: closed on mobile, open on desktop
   open.value = !isMobile.value
 
   onMqlChange = (event) => {
     isMobile.value = event.matches
-    // Automatically close when switching down to mobile size
     open.value = !event.matches
   }
   mql.addEventListener('change', onMqlChange)
@@ -466,7 +502,12 @@ const convertToTree = (topicsList) => {
 
   return [...unitsMap.values()]
 }
-
+watch(sortBy, () => {
+    fetchQuestions()
+})
+watch(sortOrder, () => {
+  fetchQuestions()
+})
 </script>
 
 <style scoped>
@@ -477,23 +518,22 @@ const convertToTree = (topicsList) => {
 }
 :deep(.p-tree-toggler),
 :deep(.p-tree-node-toggle-button) {
-  color: var(--color-primary) !important; /* Tailwind slate-500 */
+  color: var(--color-primary) !important;
 }
 :deep(.p-tree-toggler),
 :deep(.p-tree-node-toggle-button) {
   width: 1.75rem !important;
   height: 1.75rem !important;
-  border-radius: 9999px !important; /* Makes it a pill/circle */
+  border-radius: 9999px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   transition: background-color 0.2s ease, color 0.2s ease !important;
 }
 
-/* 2. Apply the gray background when the row/content is hovered */
 :deep(.p-treenode-content:hover .p-tree-toggler),
 :deep(.p-tree-node-content:hover .p-tree-node-toggle-button) {
-  background-color: #f3f4f6 !important; /* Tailwind gray-100 */
-  color: #374151 !important;            /* Tailwind gray-700 */
+  background-color: #f3f4f6 !important; 
+  color: #374151 !important;           
 }
 </style>

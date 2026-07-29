@@ -7,30 +7,24 @@
         class="fixed inset-0 bg-black/40 z-50 lg:hidden"
       ></div>
 
-      <!-- Sidebar / Aside Container -->
       <aside
         :class="[
           'bg-white border-gray-200 transition-all duration-300 z-50 flex flex-col justify-between overflow-hidden',
 
-          /* Mobile drawer: */
           'fixed top-0 bottom-0 left-0 w-80 shadow-2xl h-screen',
           open ? 'translate-x-0' : '-translate-x-full',
 
-          /* Desktop sticky sidebar*/
           'lg:sticky lg:top-0 lg:bottom-auto lg:shadow-none lg:translate-x-0 lg:h-screen',
           open ? 'lg:w-80 lg:border-r' : 'lg:w-0 lg:border-r-0'
         ]"
       >
         <div class="p-4 flex flex-col gap-4 w-80 translate-x overflow-y-auto overscroll-contain">
-          <!-- Sidebar Header -->
           <div class="mb-4">
               <h2 class="tracking-widest text-sm font-inter text-gray-500">FILTERS</h2>
           </div>
 
-          <!-- Sidebar Content / Menu -->
           <div class="flex-1">
             <div class="flex flex-col gap-6">
-              <!-- Department Select -->
               <div class="flex flex-col gap-2">
                 <label for="department" class="text-sm font-semibold text-gray-700">DEPARTMENT</label>
                 <Select
@@ -46,7 +40,6 @@
                 />
               </div>
 
-              <!-- Semester Select -->
               <div class="flex flex-col gap-2">
                 <label for="semester" class="text-sm font-semibold text-gray-700">SEMESTER</label>
                 <Select
@@ -62,7 +55,6 @@
                 />
               </div>
 
-              <!-- Regulation Radio Group -->
               <div class="flex flex-col gap-2">
                 <label class="text-sm font-semibold text-gray-700">REGULATION</label>
                 <div class="flex items-center justify-start ps-3">
@@ -75,7 +67,6 @@
                 </div>
               </div>
 
-              <!-- Apply Button -->
               <div class="pt-2">
               <Button class="w-full cursor-pointer bg-sky-800 border-sky-800 text-white" @click="applyFilterOnSubjects()">
                 APPLY FILTER
@@ -86,7 +77,6 @@
         </div>
       </aside>
 
-      <!-- Main Content Area -->
       <main class="flex-1 min-w-0 transition-all duration-300 ease-in-out"
             :class="isMobile ? 'w-full px-4' : open ? 'px-6' : 'px-[10%]'">
         <header class="px-1 mb-3 bg-white z-30">
@@ -105,7 +95,6 @@
               <span class="pi pi-angle-right text-xl mx-[0.5]"></span>
               <h2>Sem {{ headerSemester }}</h2>
           </div>
-            <!-- <h1 class="text-primary text-xl font-bold">Subjects</h1> -->
             <h2 class="text-gray-500">Select a subject to view questions</h2>
           </div>
           <div>
@@ -132,7 +121,6 @@
                 </DataTable>
             </div>
             
-            <!-- Empty State -->
             <div v-else class="flex flex-col items-center justify-center p-8 text-center border border-dashed border-gray-300 rounded-lg bg-gray-50 my-4">
               <span class="pi pi-filter-slash text-3xl text-gray-400 mb-2"></span>
               <h3 class="text-base font-semibold text-gray-700">ERROR 404</h3>
@@ -213,13 +201,10 @@ onMounted(() => {
   if (typeof window === 'undefined') return
   mql = window.matchMedia('(max-width: 1023px)')
   isMobile.value = mql.matches
-  
-  // Set initial state: closed on mobile, open on desktop
   open.value = !isMobile.value
 
   onMqlChange = (event) => {
     isMobile.value = event.matches
-    // Automatically close when switching down to mobile size
     open.value = !event.matches
   }
   mql.addEventListener('change', onMqlChange)
