@@ -316,6 +316,8 @@ async function removeFilters() {
   selectedMarksIndices.value = []
   selectedUnitsIndices.value = []
   selectedTopic.value = null
+  sortBy.value = null
+  sortOrder.value = null
   await fetchQuestions()
 }
 async function loadTopics() {
