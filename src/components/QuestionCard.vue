@@ -8,7 +8,7 @@
             <span>⋅</span>
             <h4 class="text-sm text-gray-500">{{ year }}</h4>
             <span>⋅</span>
-            <h4 class=" text-primary text-sm hover:underline cursor-pointer" @click="$emit('selectedTopic', topic)"><i>#{{ topic }}</i></h4>
+            <Button unstyled class="text-primary text-sm hover:underline cursor-pointer select-none touch-manipulation rounded-2xl mobile-tap-clean px-2 py-[0.5]" @click="$emit('selectedTopic', topic)"><i>#{{ topic }}</i></Button>
           </div>
           <div class="flex gap-3 flex-wrap">
             <Badge severity="secondary" class="font-inter text-xs text-tertiary rounded-md px-1.25 py-1 flex gap-1 items-center"><span class="text-sm">{{ marks }}</span> marks</Badge>
@@ -36,6 +36,8 @@
 <script setup>
 import Card from 'primevue/card'
 import Badge from 'primevue/badge'
+import Button from 'primevue/button'
+
 defineProps(['question_id', 'question_text', 'unit', 'difficulty', 'year', 'marks', 'image_urls', 'topic', 'isMobile', 'open'])
 const difficultyClasses = {
   Easy: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -43,3 +45,12 @@ const difficultyClasses = {
   Hard: 'bg-rose-50 text-rose-700 border-rose-200',
 }
 </script>
+
+<style scoped>
+.mobile-tap-clean {
+  -webkit-tap-highlight-color: transparent;
+}
+.p-button .p-ink {
+  background: rgba(255, 255, 255, 0.35) !important;
+}
+</style>

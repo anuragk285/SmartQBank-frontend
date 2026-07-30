@@ -54,7 +54,7 @@
                     <i class="pi pi-circle-fill text-xs"></i>
                   </span>
                   <span v-else><i class="pi pi-circle text-xs"></i></span>
-                  <span class="text-xs ml-1">{{ unit.label }}</span>
+                  <span class="text-xs">{{ unit.label }}</span>
                 </Chip>
               </div>
             </div>
@@ -94,9 +94,11 @@
                 </Chip>
               </div>
             </div>
-
             <div class="pt-2">
-              <Button class="w-full cursor-pointer bg-sky-800 border-sky-800 text-white" @click="applyFiltersOnQuestions()">
+              <Button 
+                class="w-full cursor-pointer bg-sky-800 border-sky-800 text-white select-none touch-manipulation mobile-tap-clean" 
+                @click="applyFiltersOnQuestions()"
+              >
                 APPLY FILTER
               </Button>
             </div>
@@ -133,10 +135,10 @@
           >
              <div class="flex flex-wrap gap-5">
                 <Button severity="secondary" size="small" @click="open = !open" class="flex items-center gap-2 border-gray-300 bg-gray-50 mt-4 hover:bg-gray-100">
-                 <h4 class=" text-sky-700 text-lg sm:text-sm">FILTERS</h4>
-                 <span class="pi pi-filter text-sky-700 text-lg sm:text-sm"></span>
+                 <h4 class=" text-sky-700 text-sm">FILTERS</h4>
+                 <span class="pi pi-filter text-sky-700 text-sm"></span>
                 </Button>
-                <Button @click="removeFilters()" unstyled class="self-end pb-1 mt-4 ms-1 underline cursor-pointer text-surface-500 hover:text-tertiary"><i>clear filters</i></Button>
+                <Button @click="removeFilters()" unstyled class="self-end pb-1 mt-4 ms-1 underline cursor-pointer text-surface-500 hover:text-tertiary border-none px-2 rounded-2xl"><i>clear filters</i></Button>
               </div>
 
             <div class="sm:self-end">
@@ -537,5 +539,11 @@ watch(sortOrder, () => {
 :deep(.p-tree-node-content:hover .p-tree-node-toggle-button) {
   background-color: #f3f4f6 !important; 
   color: #374151 !important;           
+}
+.mobile-tap-clean {
+  -webkit-tap-highlight-color: transparent;
+}
+.p-button .p-ink {
+  background: rgba(255, 255, 255, 0.35) !important;
 }
 </style>

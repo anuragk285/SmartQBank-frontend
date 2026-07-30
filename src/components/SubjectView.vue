@@ -3,7 +3,7 @@
     <div class="relative flex min-h-screen w-full">
       <div 
         v-if="isMobile && open" 
-        @click="open = false" 
+        @click="closeSidebar()" 
         class="fixed inset-0 bg-black/40 z-50 lg:hidden"
       ></div>
 
@@ -67,8 +67,8 @@
                 </div>
               </div>
 
-              <div class="pt-2">
-              <Button class="w-full cursor-pointer bg-sky-800 border-sky-800 text-white" @click="applyFilterOnSubjects()">
+              <div class="mt-2" v-ripple>
+              <Button class="p-ripple w-full cursor-pointer bg-sky-800 border-sky-800 text-white" @click="applyFilterOnSubjects()">
                 APPLY FILTER
               </Button>
             </div>
@@ -80,15 +80,15 @@
       <main class="flex-1 min-w-0 transition-all duration-300 ease-in-out"
             :class="isMobile ? 'w-full px-4' : open ? 'px-6' : 'px-[10%]'">
         <header class="px-1 mb-3 bg-white z-30">
-          <Button severity="secondary" text size="small" @click="open = !open" class="flex items-center gap-2 border-gray-300 bg-gray-50 ms-1 mt-4">
-            <h4 class="text-sky-700 text-lg sm:text-sm">FILTERS</h4>
-            <span class="pi pi-filter text-sky-700 text-lg sm:text-sm"></span>
+          <Button severity="secondary" text size="small" @click="open = !open" class="p-ripple flex items-center gap-2 border-gray-300 bg-gray-50 ms-1 mt-4">
+            <h4 class="text-sky-700 text-sm">FILTERS</h4>
+            <span class="pi pi-filter text-sky-700 text-sm"></span>
           </Button>
         </header>
 
         <div class="mx-2 flex flex-col gap-5">
           <div class="mx-1 flex flex-col gap-1">
-            <div class="flex flex-nowrap gap-2 text-primary items-center text-2xl font-bold">
+            <div class="flex flex-nowrap gap-2 text-primary items-center sm:text-2xl text-xl font-bold">
               <h2>{{ headerRegulationCode }}</h2>
               <span class="pi pi-angle-right text-xl mx-[0.5]"></span>
               <h2>{{ headerDepartment }}</h2> 
@@ -99,6 +99,7 @@
           </div>
           <div>
             <div v-if="filteredSubjects.length > 0 || loading" class="w-full">
+              <div v-if="!isMobile">
                 <DataTable :value="loading ? Array(5).fill({}) : filteredSubjects" @row-click="onRowClick" row-hover class="cursor-pointer" :row-class="getRowClass">
                   <Column header="Subject Name" sortable field="name" class="hover:text-primary-dark">
                     <template #body="{ data }">
@@ -119,12 +120,44 @@
                     </template>
                   </Column>
                 </DataTable>
+              </div>
+              <div v-else>
+                <div v-if="loading">
+                  <div v-for="n in 5" :key="n" class="flex items-center gap-3 py-3 mx-4 my-8">
+                    <Skeleton shape="circle" size="2.5rem" />
+                    <div class="flex-1">
+                      <Skeleton width="60%" height="1rem" class="mb-2" />
+                      <Skeleton width="40%" height="0.75rem" /></div>
+                  </div>
+                </div>
+                <div v-else class="sm:mx-8">
+                  <div
+                    v-for="(s, i) in filteredSubjects"
+                    :key="s.code"
+                    v-ripple
+                    @click="onSubjectSelect(s)"
+                  >
+                  <div class="p-ripple flex items-center gap-3 py-4 px-2 my-2 rounded-lg cursor-pointer select-none touch-manipulation mobile-tap-clean transition-colors hover:bg-gray-50 active:bg-gray-100">
+                    <span class="w-10 h-10 sm:me-2 rounded-full shrink-0 bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-medium">
+                      {{ initials(s.name) }}
+                    </span>
+                    
+                    <div class="flex-1 min-w-0">
+                      <p class="mb-1 font-medium">{{ s.name }}</p>
+                      <p class="text-gray-500 m-0">{{ s.subject_code }} · {{ s.question_count }} questions</p>
+                    </div>
+                    
+                    <i class="pi pi-arrow-up-right font-bold text-xl text-gray-400"></i>
+                  </div>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <div v-else class="flex flex-col items-center justify-center p-8 text-center border border-dashed border-gray-300 rounded-lg bg-gray-50 my-4">
               <span class="pi pi-filter-slash text-3xl text-gray-400 mb-2"></span>
-              <h3 class="text-base font-semibold text-gray-700">ERROR 404</h3>
-              <p class="text-xs text-gray-500 mt-1">No Subjects Found.</p>
+              <h3 class="text-base font-semibold text-gray-700">No Subjects Found</h3>
+              <p class="text-xs text-gray-500 mt-1">ERROR 404.</p>
             </div>
           </div>
         </div>
@@ -134,7 +167,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSubjectStore } from '@/stores/subject.js'
 
@@ -218,17 +251,18 @@ onBeforeUnmount(() => {
 })
 
 const departments = ref([
-  { label: 'CSE', value: 'CSE' },
-  { label: 'IT', value: 'IT' },
-  { label: 'CSM', value: 'CSE-AI&ML' },
-  { label: 'AI&ML', value: 'AI&ML' },
-  { label: 'CET', value: 'CET' },
-  { label: 'Mechanical', value: 'Mech' },
-  { label: 'Biotech', value: 'Biotech' },
   { label: 'AI&DS', value: 'AI&DS' },
-  { label: 'Civil', value: 'Civil' },
-  { label: 'ECE', value: 'ECE' },
+  { label: 'AI&ML', value: 'AI&ML' },
+  { label: 'Biotech', value: 'Biotech' },
+  { label: 'CET', value: 'CET' },
   { label: 'Chemical', value: 'Chem' },
+  { label: 'Civil', value: 'Civil' },
+  { label: 'CSE', value: 'CSE' },
+  { label: 'CSM', value: 'CSE-AI&ML' },
+  { label: 'ECE', value: 'ECE' },
+  { label: 'EEE', value: 'EEE'},
+  { label: 'IT', value: 'IT' },
+  { label: 'Mechanical', value: 'Mech' },
 ])
 
 const semesters = ref([
@@ -246,13 +280,26 @@ function onRowClick(event) {
   onSubjectSelect(event.data)
 }
 
-function onSubjectSelect(subject) {
-  subjectStore.selectSubject(subject)
+function setFilterValues(){
   subjectStore.filters.department = selectedDepartment.value
   subjectStore.filters.semester = selectedSemester.value
   subjectStore.filters.regulation_code = selectedRegulationCode.value
+}
+
+function onSubjectSelect(subject) {
+  subjectStore.selectSubject(subject)
+  setFilterValues()
   router.push({ name: 'questions', params: { subjectId: subject.id } })
 }
+watch(selectedDepartment, () => {
+  setFilterValues()
+})
+watch(selectedRegulationCode, () => {
+  setFilterValues()
+})
+watch(selectedSemester, () => {
+  setFilterValues()
+})
 
 const scrollToTop = () => {
   window.scrollTo({
@@ -263,7 +310,17 @@ const scrollToTop = () => {
 const getRowClass = () => {
   return 'hover:font-medium transition-all duration-100 ease-in-out'
 }
-
+function initials(name) {
+  const words = name.split(' ').filter(Boolean)
+  return ((words[0]?.[0] || '') + (words[1]?.[0] || '')).toUpperCase()
+}
+function closeSidebar() {
+  open.value = false
+  selectedDepartment.value = headerDepartment.value
+  selectedRegulationCode.value = headerRegulationCode.value
+  selectedSemester.value = headerSemester.value
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>

@@ -8,6 +8,7 @@ import router from './router'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import 'primeicons/primeicons.css'
+import { Ripple } from 'primevue'
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -90,6 +91,7 @@ const MyPreset = definePreset(Aura, {
 const app = createApp(App)
 app.use(PrimeVue, {
   license: import.meta.env.VITE_PRIMEVUE_API_KEY,
+  ripple: true,
   theme: {
     preset: MyPreset,
     options: {
@@ -103,4 +105,5 @@ app.use(PrimeVue, {
 })
 app.use(createPinia().use(piniaPluginPersistedstate))
 app.use(router)
+app.directive('ripple', Ripple)
 app.mount('#app')
