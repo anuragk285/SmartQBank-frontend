@@ -18,7 +18,7 @@
         >
           <template #item="{ item, props }">
             <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-              <a :href="href" v-bind="props.action" @click="navigate" class="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors">
+              <a :href="href" v-bind="props.action" @click="navigate" class="flex items-center gap-2 text-gray-500 hover:text-tertiary transition-colors">
                 <span v-if="item.icon" :class="item.icon" class="text-sm"></span>
                 <span v-if="item.label" class="text-sm font-medium">{{ item.label }}</span>
               </a>
@@ -57,7 +57,8 @@ const breadcrumbItems = computed(() => {
     if (sub.department) {
       const semLabel = typeof sub.semester === 'number' ? `Sem ${sub.semester}` : sub.semester
       items.push({
-        label: typeof sub.department === 'object' ? `${sub.department.name} ⋅ ${semLabel}` : `${sub.department} ⋅ ${semLabel}`
+        label: typeof sub.department === 'object' ? `${sub.department.name} ⋅ ${semLabel}` : `${sub.department} ⋅ ${semLabel}`,
+        route: {name: 'subjects'}
       })
     }
     if (sub.name) {

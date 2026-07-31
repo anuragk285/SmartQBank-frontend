@@ -1,13 +1,14 @@
 <template>
   <div :class="isMobile ? 'w-full' : (open ? 'w-full max-w-[85ch]' : 'w-full max-w-[95ch]')" class="transition-all duration-300 ease-in-out">
-    <Card class="px-3 py-2 border border-gray-300">
+    <Card class="sm:px-3 px-[0.5] py-2 border border-gray-300">
       <template #header>
-        <div class="flex flex-wrap justify-between items-center mt-4 mx-4 gap-3">
-          <div class="flex gap-2 flex-wrap items-center">
-            <h4 class="text-sm text-gray-500">Unit {{ unit }}</h4>
-            <span>⋅</span>
-            <h4 class="text-sm text-gray-500">{{ year }}</h4>
-            <span>⋅</span>
+        <div class="flex flex-wrap justify-between items-center mt-4 mx-5 gap-3">
+          <div class="flex sm:gap-2 gap-1 flex-wrap items-center">
+            <span v-if="isMobile" class="font-light text-sm hover:text-tertiary">Q{{ question_id }}</span>
+            <span v-if="isMobile" class="text-xl font-medium mx-1">⋅</span>
+            <h4 class="text-sm text-gray-500 hover:text-tertiary">Unit {{ unit }}</h4>
+            <span class="text-xl font-medium mx-1">⋅</span>
+            <h4 class="text-sm text-gray-500 hover:text-tertiary">{{ year }}</h4>
             <Button unstyled class="text-primary text-sm hover:underline cursor-pointer select-none touch-manipulation rounded-2xl mobile-tap-clean px-2 py-[0.5]" @click="$emit('selectedTopic', topic)"><i>#{{ topic }}</i></Button>
           </div>
           <div class="flex gap-3 flex-wrap">
@@ -17,11 +18,9 @@
         </div>
       </template>
       <template #content>
-        <h1 class="flex items-baseline text-xl font-medium font-inter text-start">
-          <span class="font-light text-base mr-2" :class="isMobile ? 'shrink' : 'shrink-0'">
-            Q{{ question_id }} <span class="text-xl font-medium ml-1">⋅</span>
-          </span>
-          <span class="flex-1">
+        <h1 class="flex items-baseline font-medium text-lg font-inter text-start">
+          <span v-if="!isMobile" class="font-light text-base sm:mr-2 hover:text-tertiary" :class="isMobile ? 'shrink' : 'shrink-0'">Q{{ question_id }} <span class="text-lg font-medium ml-1">⋅</span></span>
+          <span class="flex-1 text-lg">
             {{ question_text }}
           </span> 
         </h1>

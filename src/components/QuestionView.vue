@@ -25,13 +25,50 @@
           <div class="flex flex-col gap-5">
             <div class="flex flex-col gap-2">
               <label class="text-xs font-bold text-gray-700 tracking-wider">TOPIC</label>
-              <TreeSelect
+              <Select
                 v-model="selectedTopic"
                 :options="treeTopics"
+                optionLabel="label"
+                optionValue="value"
+                optionGroupChildren="children"
+                optionGroupLabel="label"
+                filter
+                filterBy="label"
+                :filterValue="filterQuery"
+                @filter="(e) => filterQuery = e.value"
+                showClear
                 placeholder="Select Topic"
-                class="w-full sticky"
                 appendTo="self"
-              />
+                :pt="{
+                  list: { class: 'p-0!' },
+                  optionGroup: { class: 'border-b border-surface rounded-none' },
+                  overlay: { class: 'max-w-full w-full' },
+                  option: { class: 'whitespace-normal h-auto py-2' }
+                }"
+              >
+                <template #filtericon>
+                  <i 
+                    v-if="filterQuery && filterQuery.length > 0" 
+                    class="pi pi-times cursor-pointer text-surface-500 hover:text-surface-700 dark:text-surface-400" 
+                    @click.stop="clearFilter"
+                  />
+                  <i v-else class="pi pi-search text-surface-400" />
+                </template>
+
+                <template #option="slotProps">
+                  <div class="flex items-start gap-2 min-w-0 w-full">
+                    <span 
+                      v-if="slotProps.option.unit" 
+                      class="text-xs text-muted-color bg-surface-100 dark:bg-surface-800 px-1.5 py-0.5 rounded-full shrink-0 mt-0.5"
+                    >
+                      {{ slotProps.option.unit }}
+                    </span>
+                    <span class="whitespace-normal wrap-break min-w-0 flex-1 leading-snug">
+                      {{ slotProps.option.label }}
+                    </span>
+                  </div>
+                </template>
+              </Select>
             </div>
 
             <div class="flex flex-col gap-1">
@@ -204,7 +241,7 @@
             <div v-else-if="questions?.length > 0">
               <div class="flex flex-col">
                 <QuestionCard
-                  class="p-2 mx-auto"
+                  class="sm:p-2 py-2 mx-auto"
                   v-for="q in questions"
                   :key="q.id"
                   :question_id="q.id"
@@ -258,7 +295,6 @@ import Checkbox from 'primevue/checkbox'
 import Paginator from 'primevue/paginator'
 import Button from 'primevue/button'
 import Chip from 'primevue/chip'
-import TreeSelect from 'primevue/treeselect'
 import Divider from 'primevue/divider'
 import Skeleton from 'primevue/skeleton'
 import Select from 'primevue/select'
@@ -294,8 +330,18 @@ const isMobile = ref(checkInitialMobile())
 const open = ref(!checkInitialMobile())
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 const loading = ref(false)
+const filterQuery = ref('')
+const selectRef = ref(null)
 
-
+function clearFilter() {
+  filterQuery.value = ''
+  const filterInput = selectRef.value?.$el?.querySelector('.p-select-filter') || document.querySelector('.p-select-filter') 
+  if (filterInput) {
+    filterInput.value = ''
+    filterInput.dispatchEvent(new Event('input', { bubbles: true }))
+    filterInput.focus()
+  }
+}
 const sortableItems = ref([
   { label: 'Marks', value: 'marks' },
   { label: 'Units', value: 'unit' },
@@ -346,13 +392,8 @@ function applyFiltersOnQuestions() {
   page.value = 1
   first.value = 0
   let topicName = null
-  if (selectedTopic.value !== null && selectedTopic.value !== undefined) {
-    const keys = Object.keys(selectedTopic.value)
-    if (keys.length > 0) {
-      const topicId = keys[0]
-      const foundTopic = topics.value.find(t => t.id.toString() === topicId)
-      topicName = foundTopic ? foundTopic.topic : null
-    }
+  if (selectedTopic.value) {
+    topicName = selectedTopic.value.topic || selectedTopic.value.label || null
   }
   filters.value = {
     units: selectedUnitsIndices.value.map(i => units.value[i].value),
@@ -500,7 +541,8 @@ const convertToTree = (topicsList) => {
     unitsMap.get(unitKey).children.push({
       key: topic.id.toString(),
       label: topic.topic,
-      data: topic
+      value: topic,
+      unit: topic.unit
     })
   })
 
