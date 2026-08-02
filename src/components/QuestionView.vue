@@ -25,11 +25,11 @@
           <div class="flex flex-col gap-5">
             <div class="flex flex-col gap-2">
               <label class="text-xs font-bold text-gray-700 tracking-wider">TOPIC</label>
-              <Select
-                v-model="selectedTopic"
+              <MultiSelect
+                v-model="selectedTopics"
                 :options="treeTopics"
                 optionLabel="label"
-                optionValue="value"
+                optionValue="key"
                 optionGroupChildren="children"
                 optionGroupLabel="label"
                 filter
@@ -56,19 +56,19 @@
                 </template>
 
                 <template #option="slotProps">
-                  <div class="flex items-start gap-2 min-w-0 w-full">
-                    <span 
+                  <div class="min-w-0 w-full py-0.5">
+                    <!-- <span 
                       v-if="slotProps.option.unit" 
                       class="text-xs text-muted-color bg-surface-100 dark:bg-surface-800 px-1.5 py-0.5 rounded-full shrink-0 mt-0.5"
                     >
-                      {{ slotProps.option.unit }}
-                    </span>
-                    <span class="whitespace-normal wrap-break min-w-0 flex-1 leading-snug">
-                      {{ slotProps.option.label }}
+                      U{{ slotProps.option.unit }}
+                    </span> -->
+                    <span class="text-xs whitespace-normal wrap-break min-w-0 flex-1 leading-snug">
+                      <i>{{ slotProps.option.label }}</i>
                     </span>
                   </div>
                 </template>
-              </Select>
+              </MultiSelect>
             </div>
 
             <div class="flex flex-col gap-1">
@@ -299,6 +299,7 @@ import Divider from 'primevue/divider'
 import Skeleton from 'primevue/skeleton'
 import Select from 'primevue/select'
 import FloatLabel from 'primevue/floatlabel'
+import MultiSelect  from 'primevue/multiselect'
 
 import QuestionCard from './QuestionCard.vue'
 
@@ -314,7 +315,7 @@ let onMqlChange = null
 const { selectedSubject } = storeToRefs(subjectStore)
 const topics = ref([])
 const treeTopics = ref([])
-const selectedTopic = ref(null)
+const selectedTopics = ref([])
 const subjectId = computed(() => Number(route.params.subjectId))
 const questions = ref([])
 const page = ref(1)
@@ -331,16 +332,9 @@ const open = ref(!checkInitialMobile())
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 const loading = ref(false)
 const filterQuery = ref('')
-const selectRef = ref(null)
 
 function clearFilter() {
   filterQuery.value = ''
-  const filterInput = selectRef.value?.$el?.querySelector('.p-select-filter') || document.querySelector('.p-select-filter') 
-  if (filterInput) {
-    filterInput.value = ''
-    filterInput.dispatchEvent(new Event('input', { bubbles: true }))
-    filterInput.focus()
-  }
 }
 const sortableItems = ref([
   { label: 'Marks', value: 'marks' },
@@ -363,7 +357,7 @@ async function removeFilters() {
   selectedDifficulties.value = []
   selectedMarksIndices.value = []
   selectedUnitsIndices.value = []
-  selectedTopic.value = null
+  selectedTopics.value = null
   sortBy.value = null
   sortOrder.value = null
   await fetchQuestions()
@@ -391,15 +385,20 @@ async function loadTopics() {
 function applyFiltersOnQuestions() {
   page.value = 1
   first.value = 0
-  let topicName = null
-  if (selectedTopic.value) {
-    topicName = selectedTopic.value.topic || selectedTopic.value.label || null
+  let topicIds = null
+  if (Array.isArray(selectedTopics.value) && selectedTopics.value.length > 0) {
+    topicIds = selectedTopics.value.map((item) => {
+      if (typeof item === 'object' && item !== null) {
+        return item.id || item.key || (typeof item.value === 'object' ? item.value.id : item.value)
+      }
+      return item
+    })
   }
   filters.value = {
     units: selectedUnitsIndices.value.map(i => units.value[i].value),
     marks: selectedMarksIndices.value.map(i => marks.value[i].value),
     difficulty: (selectedDifficulties.value || []).map(d => d.value),
-    topic: topicName
+    topic: topicIds
   }
   fetchQuestions()
   if (isMobile.value) {
@@ -549,9 +548,13 @@ const convertToTree = (topicsList) => {
   return [...unitsMap.values()]
 }
 watch(sortBy, () => {
+    first.value = 0
+    page.value = 1
     fetchQuestions()
 })
 watch(sortOrder, () => {
+  first.value = 0
+  page.value = 1
   fetchQuestions()
 })
 </script>

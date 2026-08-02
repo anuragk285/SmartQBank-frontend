@@ -19,7 +19,7 @@
       </template>
       <template #content>
         <h1 class="flex items-baseline font-medium text-lg font-inter text-start">
-          <span v-if="!isMobile" class="font-light text-base sm:mr-2 hover:text-tertiary" :class="isMobile ? 'shrink' : 'shrink-0'">Q{{ question_id }} <span class="text-lg font-medium ml-1">⋅</span></span>
+          <span v-if="!isMobile" class="font-light text-base sm:mr-2 text-gray-500 hover:text-tertiary" :class="isMobile ? 'shrink' : 'shrink-0'">Q{{ question_id }} <span class="text-lg font-medium ml-1">⋅</span></span>
           <span class="flex-1 text-lg">
             {{ question_text }}
           </span> 
