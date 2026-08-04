@@ -28,6 +28,7 @@
               <MultiSelect
                 v-model="selectedTopics"
                 :options="treeTopics"
+                ref="multiSelectRef"
                 optionLabel="label"
                 optionValue="key"
                 optionGroupChildren="children"
@@ -175,7 +176,7 @@
                  <h4 class=" text-sky-700 text-sm">FILTERS</h4>
                  <span class="pi pi-filter text-sky-700 text-sm"></span>
                 </Button>
-                <Button @click="removeFilters()" unstyled class="self-end pb-1 mt-4 ms-1 underline cursor-pointer text-surface-500 hover:text-tertiary border-none px-2 rounded-2xl"><i>clear filters</i></Button>
+                <Button @click="removeFiltersAndFetchQuestions()" unstyled class="self-end pb-1 mt-4 ms-1 underline cursor-pointer text-surface-500 hover:text-tertiary border-none px-2 rounded-2xl"><i>clear filters</i></Button>
               </div>
 
             <div class="sm:self-end">
@@ -252,6 +253,7 @@
                   :year="q.year"
                   :image_urls="q.image_urls"
                   :topic="q.topic"
+                  :topic_id="q.topic_id"
                   :isMobile="isMobile"
                   :open="open"
                   @selectedTopic="showSelectedTopicQuestions($event)"
@@ -285,7 +287,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch} from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick} from 'vue'
 import { useRoute } from 'vue-router'
 import { useSubjectStore } from '@/stores/subject'
 import { storeToRefs } from 'pinia'
@@ -319,7 +321,7 @@ const selectedTopics = ref([])
 const subjectId = computed(() => Number(route.params.subjectId))
 const questions = ref([])
 const page = ref(1)
-const filters = ref({ units: [], difficulty: [], marks: [] })
+const filters = ref({ units: [], difficulty: [], marks: [],  })
 const selectedUnitsIndices = ref([])
 const selectedMarksIndices = ref([])
 const selectedDifficulties = ref([])
@@ -332,6 +334,8 @@ const open = ref(!checkInitialMobile())
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 const loading = ref(false)
 const filterQuery = ref('')
+const multiSelectRef = ref(null);
+const resettingFilters = ref(false)
 
 function clearFilter() {
   filterQuery.value = ''
@@ -345,11 +349,13 @@ const sortableOrders = ref([
   { label: 'Ascending', value: 'asc' },
   { label: 'Descending', value: 'desc' }
 ])
-async function showSelectedTopicQuestions(topic) {  
-  filters.value.topic = topic
-  await fetchQuestions()
+async function showSelectedTopicQuestions(topicId) {  
+  await removeFilters()
+  filters.value.topic = [Number(topicId)]
+  fetchQuestions()
 }
 async function removeFilters() {
+  resettingFilters.value = true
   filters.value.difficulty = []
   filters.value.marks = []
   filters.value.units = []
@@ -357,11 +363,17 @@ async function removeFilters() {
   selectedDifficulties.value = []
   selectedMarksIndices.value = []
   selectedUnitsIndices.value = []
-  selectedTopics.value = null
+  selectedTopics.value = []
   sortBy.value = null
   sortOrder.value = null
-  await fetchQuestions()
+  await nextTick()
+  resettingFilters.value = false
 }
+async function removeFiltersAndFetchQuestions(){
+  await removeFilters()
+  fetchQuestions()
+} 
+
 async function loadTopics() {
   loading.value = true
   const numericSubjectId = subjectId.value
@@ -387,12 +399,9 @@ function applyFiltersOnQuestions() {
   first.value = 0
   let topicIds = null
   if (Array.isArray(selectedTopics.value) && selectedTopics.value.length > 0) {
-    topicIds = selectedTopics.value.map((item) => {
-      if (typeof item === 'object' && item !== null) {
-        return item.id || item.key || (typeof item.value === 'object' ? item.value.id : item.value)
-      }
-      return item
-    })
+    topicIds = selectedTopics.value
+      .map(item => (typeof item === 'object' ? Number(item.value ?? item.id) : Number(item)))
+      .filter(id => !isNaN(id))
   }
   filters.value = {
     units: selectedUnitsIndices.value.map(i => units.value[i].value),
@@ -417,8 +426,9 @@ async function fetchQuestions() {
     params.append('sort_by', sortBy.value ? sortBy.value.value : null)
     params.append('sort_order', sortOrder.value ? sortOrder.value.value : 'asc')
   }
-  if (filters.value.topic) params.append('topic', filters.value.topic)
-  
+  if (Array.isArray(filters.value.topic)) {
+    filters.value.topic.forEach(id => params.append('topic_ids', id))
+  }
   try {
     const res = await fetch(`${baseUrl}/api/subjects/${numericSubjectId}/questions?${params}`)
     const data = await res.json()
@@ -538,7 +548,7 @@ const convertToTree = (topicsList) => {
     }
 
     unitsMap.get(unitKey).children.push({
-      key: topic.id.toString(),
+      key: topic.id,
       label: topic.topic,
       value: topic,
       unit: topic.unit
@@ -547,15 +557,11 @@ const convertToTree = (topicsList) => {
 
   return [...unitsMap.values()]
 }
-watch(sortBy, () => {
+watch([sortBy, sortOrder], () => {
     first.value = 0
     page.value = 1
+    if (resettingFilters.value) return
     fetchQuestions()
-})
-watch(sortOrder, () => {
-  first.value = 0
-  page.value = 1
-  fetchQuestions()
 })
 </script>
 
